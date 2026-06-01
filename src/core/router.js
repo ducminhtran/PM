@@ -1,95 +1,54 @@
 /**
- * router.js — a tiny History-API router.
+ * createStore — a minimal observable state container.
  *
- * Routes are declared as { pattern, handler }. Patterns support :params
- * (e.g. '/projects/:id'). The handler receives ({ params, query }) and is
- * responsible for rendering into the outlet.
+ * This is the reactivity primitive the whole app is built on. Vanilla JS has
+ * no reactivity, so we provide the missing link in the flow:
  *
- * Why not hash routing? History API gives clean URLs and works with Vite's
- * dev server + a SPA fallback in production. The trade-off is that the host
- * must serve index.html for unknown paths (configured in vite/host).
+ *   UI --action--> store.setState() --> subscribers notified --> UI re-renders
+ *
+ * Design notes:
+ *  - State is treated as immutable: setState shallow-merges a NEW object.
+ *    Never mutate state in place; the identity change is what lets views
+ *    cheaply detect "something changed".
+ *  - subscribe() returns an unsubscribe fn (so views can clean up on unmount).
+ *  - Updaters can be a partial object OR a function (prevState) => partial,
+ *    which avoids stale-closure bugs when updates depend on current state.
+ *
+ * It deliberately does NOT do: deep reactivity, selectors, middleware. Those
+ * are added per-feature only if a real need appears (avoid speculative abstraction).
  */
-export function createRouter({ outlet, routes, notFound }) {
-  const compiled = routes.map((r) => ({
-    ...r,
-    ...compile(r.pattern),
-  }));
+export function createStore(initialState = {}) {
+  let state = { ...initialState };
+  const listeners = new Set();
 
-  function compile(pattern) {
-    const keys = [];
-    const regex = new RegExp(
-      '^' +
-        pattern
-          .replace(/\//g, '\\/')
-          .replace(/:(\w+)/g, (_, k) => {
-            keys.push(k);
-            return '([^\\/]+)';
-          }) +
-        '\\/?$'
-    );
-    return { regex, keys };
+  function getState() {
+    return state;
   }
 
-  function parseQuery(search) {
-    return Object.fromEntries(new URLSearchParams(search));
+  function setState(updater) {
+    const partial = typeof updater === 'function' ? updater(state) : updater;
+    if (partial == null) return;
+    const next = { ...state, ...partial };
+    state = next;
+    listeners.forEach((fn) => fn(state));
   }
 
-  function match(path) {
-    for (const route of compiled) {
-      const m = route.regex.exec(path);
-      if (m) {
-        const params = {};
-        route.keys.forEach((k, i) => (params[k] = decodeURIComponent(m[i + 1])));
-        return { route, params };
-      }
-    }
-    return null;
+  /**
+   * @param {(state) => void} listener
+   * @param {{ immediate?: boolean }} [opts] - fire once immediately with current state
+   * @returns {() => void} unsubscribe
+   */
+  function subscribe(listener, opts = {}) {
+    listeners.add(listener);
+    if (opts.immediate) listener(state);
+    return () => listeners.delete(listener);
   }
 
-  let currentCleanup = null;
-
-  async function render() {
-    const path = window.location.pathname;
-    const query = parseQuery(window.location.search);
-    const matched = match(path);
-
-    // Let the previous view tear down (unsubscribe stores, remove listeners).
-    if (typeof currentCleanup === 'function') {
-      try { currentCleanup(); } catch { /* ignore cleanup errors */ }
-      currentCleanup = null;
-    }
-
-    if (!matched) {
-      currentCleanup = await notFound?.({ outlet, path });
-      return;
-    }
-    currentCleanup = await matched.route.handler({
-      outlet,
-      params: matched.params,
-      query,
-    });
+  /** Reset to a known state (useful on logout / project switch). */
+  function reset(nextState = initialState) {
+    state = { ...nextState };
+    listeners.forEach((fn) => fn(state));
   }
 
-  function navigate(to, { replace = false } = {}) {
-    if (to === window.location.pathname + window.location.search) return;
-    if (replace) window.history.replaceState({}, '', to);
-    else window.history.pushState({}, '', to);
-    render();
-  }
-
-  function start() {
-    // Intercept internal link clicks (data-link or <a> within app).
-    document.addEventListener('click', (e) => {
-      const a = e.target.closest('a[data-link]');
-      if (!a) return;
-      const href = a.getAttribute('href');
-      if (!href || href.startsWith('http')) return;
-      e.preventDefault();
-      navigate(href);
-    });
-    window.addEventListener('popstate', render);
-    render();
-  }
-
-  return { start, navigate, render };
+  return { getState, setState, subscribe, reset };
 }
