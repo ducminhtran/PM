@@ -31,9 +31,15 @@ export function Sidebar() {
   ]);
 
   function setActive(pathname) {
+    // Normalize away the base path (e.g. '/PM') so comparison works on Pages
+    // and locally alike. We strip Vite's BASE_URL prefix if present.
+    const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+    let path = pathname;
+    if (base && path.startsWith(base)) path = path.slice(base.length) || '/';
+
     node.querySelectorAll('.sidebar__link').forEach((link) => {
       const href = link.dataset.href;
-      const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+      const active = href === '/' ? path === '/' : path.startsWith(href);
       link.classList.toggle('sidebar__link--active', active);
     });
   }
