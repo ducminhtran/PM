@@ -7,6 +7,7 @@
  */
 import { el, mount } from '../../shared/utils/dom.js';
 import { Badge } from '../../shared/components/badge.js';
+import { Priority } from '../../shared/components/priority.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { Spinner } from '../../shared/components/spinner.js';
 import { Table } from '../../shared/components/table.js';
@@ -43,7 +44,7 @@ export function ProjectDetailView({ outlet, params, navigate, setTitle }) {
       el('div.detail-head__main', {}, [
         el('span.mono.detail-head__key', { text: project.key }),
         el('h2.detail-head__title', { text: project.name }),
-        Badge({ label: cfg.label, color: cfg.color }),
+        Badge({ label: cfg.label, tone: cfg.tone }),
       ]),
       el('button.btn.btn--primary', { type: 'button', on: { click: () => navigate(`/tasks?project=${project.id}`) } }, [
         'Open board',
@@ -65,8 +66,8 @@ export function ProjectDetailView({ outlet, params, navigate, setTitle }) {
       ? Table({
           columns: [
             { key: 'title', header: 'Title', render: (t) => el('span.cell-strong', { text: t.title }) },
-            { key: 'status', header: 'Status', width: '130px', render: (t) => { const s = TASK_STATUS[t.status]; return Badge({ label: s.label, color: s.color }); } },
-            { key: 'priority', header: 'Priority', width: '110px', render: (t) => { const p = PRIORITY[t.priority]; return Badge({ label: p.label, color: p.color }); } },
+            { key: 'status', header: 'Status', width: '130px', render: (t) => { const s = TASK_STATUS[t.status]; return Badge({ label: s.label, tone: s.tone }); } },
+            { key: 'priority', header: 'Priority', width: '110px', render: (t) => { return Priority({ value: t.priority }); } },
             { key: 'assignee_id', header: 'Assignee', width: '160px', render: (t) => { const m = r.member(t.assignee_id); return el('span.cell-user', {}, [Avatar({ name: m?.full_name ?? 'Unassigned', url: m?.avatar_url, size: 24 }), el('span', { text: m?.full_name ?? 'Unassigned' })]); } },
             { key: 'progress', header: 'Progress', width: '120px', render: (t) => el('span.progress', {}, [el('span.progress__bar', { style: { width: `${t.progress ?? 0}%` } })]) },
           ],

@@ -5,7 +5,7 @@
  */
 import { el, mount } from '../../shared/utils/dom.js';
 import { Table } from '../../shared/components/table.js';
-import { Badge } from '../../shared/components/badge.js';
+import { Priority } from '../../shared/components/priority.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
 import { emptyState } from '../../shared/components/empty-state.js';
@@ -46,7 +46,7 @@ export function IssuesView({ outlet, setTitle }) {
         { key: 'title', header: 'Summary', render: (i) => el('span.cell-strong', { text: i.title }) },
         { key: 'project_id', header: 'Project', width: '110px', render: (i) => el('span.mono', { text: r.projectKey(i.project_id) }) },
         { key: 'priority', header: 'Priority', width: '110px', render: (i) => {
-          const p = PRIORITY[i.priority] ?? PRIORITY.medium; return Badge({ label: p.label, color: p.color });
+          return Priority({ value: i.priority });
         } },
         { key: 'status', header: 'Status', width: '150px', render: (i) => {
           const cfg = ISSUE_STATUS[i.status] ?? { label: i.status };

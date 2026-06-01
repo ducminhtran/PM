@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  // Repo chạy ở https://ducminhtran.github.io/PM/ nên base phải là '/PM/'.
+  // Thiếu dòng này thì mọi file JS/CSS bị tìm sai đường dẫn -> 404 -> trắng trang.
   base: '/PM/',
   server: { port: 5173, open: true },
-  build: { target: 'es2020', sourcemap: true },
-  // History-API routing needs index.html served for unknown paths.
-  // Vite dev server does this by default for SPAs.
+  build: { target: 'es2020', sourcemap: true, outDir: 'dist' },
 });

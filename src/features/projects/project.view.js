@@ -57,7 +57,7 @@ export function ProjectsView({ outlet, navigate, setTitle }) {
           width: '130px',
           render: (p) => {
             const cfg = PROJECT_STATUS[p.status] ?? { label: p.status, color: 'var(--c-text-muted)' };
-            return Badge({ label: cfg.label, color: cfg.color });
+            return Badge({ label: cfg.label, tone: cfg.tone });
           },
         },
         {

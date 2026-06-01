@@ -64,7 +64,7 @@ export function ResourcesView({ outlet, setTitle }) {
           return el('span.cell-user', {}, [Avatar({ name: m?.full_name ?? '—', url: m?.avatar_url, size: 24 }), el('span', { text: m?.full_name ?? '—' })]);
         } },
         { key: 'project_id', header: 'Project', render: (a) => el('span', { text: r.projectName(a.project_id) }) },
-        { key: 'allocation_pct', header: 'Allocation', width: '120px', render: (a) => Badge({ label: `${a.allocation_pct}%`, color: a.allocation_pct > 100 ? 'var(--c-error)' : 'var(--c-info)' }) },
+        { key: 'allocation_pct', header: 'Allocation', width: '120px', render: (a) => Badge({ label: `${a.allocation_pct}%`, tone: a.allocation_pct > 100 ? 'red' : 'blue' }) },
         { key: 'start_date', header: 'From', width: '120px', render: (a) => formatDate(a.start_date) },
         { key: 'end_date', header: 'To', width: '120px', render: (a) => formatDate(a.end_date) },
       ],

@@ -57,6 +57,14 @@
   --elev-overlay: 0 4px 8px -2px rgba(9,30,66,0.25), 0 0 1px rgba(9,30,66,0.31);
   --elev-modal:   0 8px 16px -4px rgba(9,30,66,0.25), 0 0 1px rgba(9,30,66,0.31);
 
+  /* ---- Badge surfaces (nền nhạt + chữ đậm cùng tông, kiểu Jira) ---- */
+  --badge-neutral-bg: #F1F2F4;  --badge-neutral-fg: #44546F;
+  --badge-blue-bg:    #E9F2FF;  --badge-blue-fg:    #0055CC;
+  --badge-amber-bg:   #FFF7D6;  --badge-amber-fg:   #974F0C;
+  --badge-green-bg:   #DCFFF1;  --badge-green-fg:   #216E4E;
+  --badge-red-bg:     #FFECEB;  --badge-red-fg:     #AE2E24;
+  --badge-purple-bg:  #F3F0FF;  --badge-purple-fg:  #5E4DB2;
+
   /* ---- Layout ---- */
   --sidebar-w: 240px;
   --topbar-h: 56px;

@@ -7,7 +7,7 @@
  */
 import { el, mount } from '../../shared/utils/dom.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
-import { Badge } from '../../shared/components/badge.js';
+import { Priority } from '../../shared/components/priority.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { Modal } from '../../shared/components/modal.js';
 import { toast } from '../../shared/components/toast.js';
@@ -39,6 +39,18 @@ export function TasksView({ outlet, setTitle, query }) {
 
   function buildBoard(rows) {
     const r = appStore.getResolver();
+    // Tính "mã task" kiểu Jira: KEY-1, KEY-2... ổn định theo thứ tự tạo trong từng project.
+    const seqByProject = new Map(); // projectId -> đếm
+    const keyByTask = new Map();    // taskId -> "ATL-3"
+    const ordered = [...rows].sort((a, b) =>
+      String(a.created_at ?? a.id).localeCompare(String(b.created_at ?? b.id))
+    );
+    for (const t of ordered) {
+      const n = (seqByProject.get(t.project_id) ?? 0) + 1;
+      seqByProject.set(t.project_id, n);
+      keyByTask.set(t.id, `${r.projectKey(t.project_id)}-${n}`);
+    }
+
     const board = el('div.board');
     for (const status of COLUMNS) {
       const cfg = TASK_STATUS[status];
@@ -48,40 +60,50 @@ export function TasksView({ outlet, setTitle, query }) {
           el('span.board__column-title', { text: cfg.label }),
           el('span.board__column-count', { text: String(colTasks.length) }),
         ]),
-        el('div.board__cards', {}, colTasks.map((t) => card(t, r))),
+        el('div.board__cards', {}, colTasks.map((t) => card(t, r, keyByTask.get(t.id)))),
       ]);
       board.append(column);
     }
     return board;
   }
 
-  function card(task, r) {
+  function card(task, r, taskKey) {
     const member = r.member(task.assignee_id);
     const prio = PRIORITY[task.priority] ?? PRIORITY.medium;
-    const node = el('article.task-card', { dataset: { id: task.id } }, [
+    const isDone = task.status === 'done';
+    const node = el('article.task-card', {
+      dataset: { id: task.id },
+      style: { '--prio-color': prio.color },
+    }, [
       el('p.task-card__title', { text: task.title }),
+      task.progress != null && task.progress > 0 && !isDone
+        ? el('span.progress', {}, [
+            el('span.progress__bar', { style: { width: `${task.progress}%` } }),
+          ])
+        : null,
       el('div.task-card__meta', {}, [
-        Badge({ label: prio.label, color: prio.color }),
-        task.progress != null
-          ? el('span.task-card__progress', {}, [
-              el('span.progress', {}, [
-                el('span.progress__bar', { style: { width: `${task.progress}%` } }),
-              ]),
-            ])
+        Priority({ value: task.priority }),
+        (task.progress != null && task.progress > 0 && !isDone)
+          ? el('span', { class: 'task-card__key', text: `${task.progress}%` })
           : null,
       ]),
       el('div.task-card__footer', {}, [
-        Avatar({ name: member?.full_name ?? 'Unassigned', url: member?.avatar_url, size: 24 }),
-        el('select.task-card__status', {
-          'aria-label': 'Change status',
-          on: {
-            change: (e) => moveTask(task.id, e.target.value),
-          },
-        }, COLUMNS.map((s) =>
-          el('option', { value: s, text: TASK_STATUS[s].label, selected: s === task.status })
-        )),
+        el('span.task-card__key', { text: taskKey ?? '' }),
+        el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+          el('select.task-card__status', {
+            'aria-label': 'Change status',
+            on: {
+              click: (e) => e.stopPropagation(),
+              change: (e) => moveTask(task.id, e.target.value),
+            },
+          }, COLUMNS.map((s) =>
+            el('option', { value: s, text: TASK_STATUS[s].label, selected: s === task.status })
+          )),
+          Avatar({ name: member?.full_name ?? 'Unassigned', url: member?.avatar_url, size: 24 }),
+        ]),
       ]),
     ]);
+    if (isDone) node.classList.add('task-card--done');
     return node;
   }
 
