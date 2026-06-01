@@ -1,11 +1,11 @@
 /** issue.store.js — state for Issues. */
 import { createStore } from '../../core/store.js';
 import { issueService } from './issue.service.js';
-const store = createStore({ items: [], status: 'idle', error: null, loaded: false });
+const store = createStore({ items: [], status: 'idle', error: null, loaded: false, projectId: null });
 async function load({ projectId = null, force = false } = {}) {
   const s = store.getState();
-  if (s.loaded && !force) return s.items;
-  store.setState({ status: 'loading', error: null });
+  if (s.loaded && s.projectId === projectId && !force) return s.items;
+  store.setState({ status: 'loading', error: null, projectId });
   try {
     const items = await issueService.list({ projectId });
     store.setState({ items, status: 'ready', loaded: true });

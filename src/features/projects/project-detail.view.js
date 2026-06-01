@@ -47,7 +47,7 @@ export function ProjectDetailView({ outlet, params, navigate, setTitle }) {
         el('h2.detail-head__title', { text: project.name }),
         Badge({ label: cfg.label, tone: cfg.tone }),
       ]),
-      el('button.btn.btn--primary', { type: 'button', on: { click: () => navigate(`/tasks?project=${project.id}`) } }, [
+      el('button.btn.btn--primary', { type: 'button', on: { click: () => navigate(`/projects/${project.id}/board`) } }, [
         'Open board',
       ]),
     ]);

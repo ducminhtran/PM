@@ -44,7 +44,10 @@ async function bootstrap() {
     toast('Failed to load reference data: ' + err.message, 'error');
   }
 
-  const shell = AppShell({ user: appStore.getState().currentUser });
+  const shell = AppShell({
+    user: appStore.getState().currentUser,
+    onCreate: () => router.navigate('/projects'),
+  });
   root.replaceChildren(shell.node);
 
   const router = createRouter({
@@ -52,7 +55,7 @@ async function bootstrap() {
     routes: createRoutes({
       navigate: (to, opts) => router.navigate(to, opts),
       setTitle: shell.setTitle,
-      setActiveNav: shell.setActiveNav,
+      setContext: shell.setContext,
     }),
     notFound: ({ outlet }) => {
       outlet.replaceChildren(

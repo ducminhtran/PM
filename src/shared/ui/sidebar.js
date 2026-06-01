@@ -1,49 +1,77 @@
 /**
- * Sidebar — primary navigation. Pure presentation + links (data-link is
- * intercepted by the router). Highlights the active route.
+ * Sidebar — điều hướng phụ, đổi nội dung theo context (kiểu Jira).
+ *
+ * - scope 'project': hiện header project + Dashboard/Board/Backlog/Issues
+ *   (các link trỏ /projects/:id/...).
+ * - scope 'global': hiện các mục toàn cục (Projects, Resources).
+ *
+ * Pure presentation. Lấy tên project từ appStore để hiện header.
  */
-import { el } from '../utils/dom.js';
+import { el, mount } from '../utils/dom.js';
 import { Icon } from '../components/icon.js';
+import { appStore } from '../../app.store.js';
 
-const NAV = [
-  { href: '/', label: 'Dashboard', icon: 'layout-dashboard' },
-  { href: '/projects', label: 'Projects', icon: 'folder' },
-  { href: '/tasks', label: 'Tasks', icon: 'checklist' },
-  { href: '/issues', label: 'Issues', icon: 'bug' },
-  { href: '/resources', label: 'Resources', icon: 'users' },
+const PROJECT_NAV = [
+  { section: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+  { section: 'board',     label: 'Board',     icon: 'layout-kanban' },
+  { section: 'backlog',   label: 'Backlog',   icon: 'list' },
+  { section: 'issues',    label: 'Issues',    icon: 'bug' },
+];
+
+const GLOBAL_NAV = [
+  { section: 'projects',  label: 'Projects',  icon: 'folder', href: '/projects' },
+  { section: 'resources', label: 'Resources', icon: 'users',  href: '/resources' },
 ];
 
 export function Sidebar() {
-  const node = el('aside.sidebar', {}, [
-    el('div.sidebar__brand', {}, [
-      el('span.sidebar__logo', { text: 'A' }),
-      el('span.sidebar__brand-name', { text: 'Atlas PM' }),
-    ]),
-    el(
-      'nav.sidebar__nav',
-      {},
-      NAV.map((item) =>
-        el('a.sidebar__link', { href: item.href, 'data-link': '', dataset: { href: item.href } }, [
-          Icon(item.icon, { size: 18 }),
-          el('span', { text: item.label }),
-        ])
-      )
-    ),
-  ]);
+  const node = el('aside.sidebar');
 
-  function setActive(pathname) {
-    // Normalize away the base path (e.g. '/PM') so comparison works on Pages
-    // and locally alike. We strip Vite's BASE_URL prefix if present.
-    const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-    let path = pathname;
-    if (base && path.startsWith(base)) path = path.slice(base.length) || '/';
-
-    node.querySelectorAll('.sidebar__link').forEach((link) => {
-      const href = link.dataset.href;
-      const active = href === '/' ? path === '/' : path.startsWith(href);
-      link.classList.toggle('sidebar__link--active', active);
-    });
+  function render(context = { scope: 'global', section: 'projects' }) {
+    if (context.scope === 'project' && context.projectId) {
+      renderProject(context);
+    } else {
+      renderGlobal(context);
+    }
   }
 
-  return { node, setActive };
+  function renderProject({ projectId, section }) {
+    const project = appStore.getResolver().project(projectId);
+    const key = project?.key ?? '—';
+    const name = project?.name ?? 'Project';
+
+    mount(node,
+      el('div.sidebar__project', {}, [
+        el('span.sidebar__project-badge', { text: key.slice(0, 2).toUpperCase() }),
+        el('div', {}, [
+          el('p.sidebar__project-name', { text: name }),
+          el('p.sidebar__project-type', { text: 'Software project' }),
+        ]),
+      ]),
+      el('nav.sidebar__nav', {}, PROJECT_NAV.map((item) => {
+        const href = `/projects/${projectId}/${item.section}`;
+        const a = el('a.sidebar__link', { href, 'data-link': '', dataset: { section: item.section } }, [
+          Icon(item.icon, { size: 17 }),
+          el('span', { text: item.label }),
+        ]);
+        if (item.section === section) a.classList.add('sidebar__link--active');
+        return a;
+      }))
+    );
+  }
+
+  function renderGlobal({ section }) {
+    mount(node,
+      el('div.sidebar__heading', { text: 'Workspace' }),
+      el('nav.sidebar__nav', {}, GLOBAL_NAV.map((item) => {
+        const a = el('a.sidebar__link', { href: item.href, 'data-link': '', dataset: { section: item.section } }, [
+          Icon(item.icon, { size: 17 }),
+          el('span', { text: item.label }),
+        ]);
+        if (item.section === section) a.classList.add('sidebar__link--active');
+        return a;
+      }))
+    );
+  }
+
+  return { node, render };
 }

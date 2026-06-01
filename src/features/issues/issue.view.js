@@ -17,7 +17,7 @@ import { appStore } from '../../app.store.js';
 import { issueStore } from './issue.store.js';
 import { IssueForm } from './components/issue-form.js';
 
-export function IssuesView({ outlet, setTitle }) {
+export function IssuesView({ outlet, setTitle, projectId }) {
   setTitle?.('Issues');
 
   const section = AsyncSection({
@@ -25,7 +25,7 @@ export function IssuesView({ outlet, setTitle }) {
     empty: () => emptyState('No issues reported', {
       icon: 'bug', action: el('button.btn.btn--primary', { type: 'button', on: { click: openCreate } }, ['Report issue']),
     }),
-    onRetry: () => issueStore.load({ force: true }).catch(() => {}),
+    onRetry: () => issueStore.load({ projectId, force: true }).catch(() => {}),
   });
 
   const header = el('div.page-header', {}, [
@@ -89,6 +89,6 @@ export function IssuesView({ outlet, setTitle }) {
     else if (state.status === 'error') section.setError(state.error);
     else if (state.status === 'ready') section.setData(state.items);
   }, { immediate: true });
-  issueStore.load().catch(() => {});
+  issueStore.load({ projectId }).catch(() => {});
   return () => unsubscribe();
 }
