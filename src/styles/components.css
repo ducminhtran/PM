@@ -76,7 +76,7 @@
 .task-card { position: relative; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-sm); box-shadow: var(--elev-raised); padding: var(--sp-3); padding-left: calc(var(--sp-3) + 3px); display: flex; flex-direction: column; gap: var(--sp-2); cursor: pointer; transition: border-color .12s, box-shadow .12s; }
 .task-card:hover { border-color: var(--c-border-strong); box-shadow: var(--elev-overlay); }
 /* dải màu trái theo độ ưu tiên (gắn qua biến --prio-color) */
-.task-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: var(--radius-sm) 0 0 var(--radius-sm); background: var(--prio-color, var(--c-border-strong)); }
+.task-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: var(--radius-sm) 0 0 var(--radius-sm); background: var(--prio-color, var(--c-border-strong)); }
 .task-card--done .task-card__title { color: var(--c-text-muted); text-decoration: line-through; }
 .task-card--done { opacity: .85; }
 .task-card__title { font-weight: 400; font-size: var(--fs-body); line-height: 1.45; }
@@ -88,8 +88,8 @@
 
 /* ---- Stat cards (dashboard) ---- */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--sp-3); }
-.stat-card { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-1); padding: var(--sp-4); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-md); cursor: pointer; text-align: left; transition: box-shadow .12s, border-color .12s; }
-.stat-card:hover { box-shadow: var(--elev-raised); border-color: var(--c-border-strong); }
+.stat-card { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-1); padding: var(--sp-4); background: var(--c-bg); border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; text-align: left; transition: background .12s, border-color .12s; }
+.stat-card:hover { background: #ECEDF0; border-color: var(--c-border); }
 .stat-card__icon { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--badge-blue-bg); color: var(--badge-blue-fg); font-size: 18px; margin-bottom: var(--sp-1); }
 .stat-card__icon[data-tone="blue"]  { background: var(--badge-blue-bg);  color: var(--badge-blue-fg); }
 .stat-card__icon[data-tone="amber"] { background: var(--badge-amber-bg); color: var(--badge-amber-fg); }

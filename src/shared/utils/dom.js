@@ -25,7 +25,10 @@ export function el(tag, props = {}, children = []) {
     } else if (key === 'dataset') {
       Object.assign(node.dataset, value);
     } else if (key === 'style' && typeof value === 'object') {
-      Object.assign(node.style, value);
+      for (const [prop, val] of Object.entries(value)) {
+        if (prop.startsWith('--')) node.style.setProperty(prop, val);
+        else node.style[prop] = val;
+      }
     } else if (key === 'class') {
       node.classList.add(...String(value).split(' ').filter(Boolean));
     } else if (key === 'html') {

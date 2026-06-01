@@ -32,12 +32,12 @@ button { font-family: inherit; }
   display: flex; flex-direction: column; padding: var(--sp-3);
 }
 .sidebar__brand { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-2) var(--sp-6); }
-.sidebar__logo { display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-sm); background: var(--c-brand); color: #fff; font-size: 18px; }
+.sidebar__logo { display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-md); background: var(--c-brand); color: #fff; font-size: 16px; font-weight: 700; font-family: var(--font-display); }
 .sidebar__brand-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
 .sidebar__nav { display: flex; flex-direction: column; gap: 2px; }
 .sidebar__link {
   display: flex; align-items: center; gap: var(--sp-3);
-  padding: var(--sp-2) var(--sp-3); border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3); border-radius: var(--radius-md);
   color: var(--c-text-secondary); font-weight: 500; transition: background .12s, color .12s;
 }
 .sidebar__link i { font-size: 18px; }

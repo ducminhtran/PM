@@ -15,7 +15,7 @@ const NAV = [
 export function Sidebar() {
   const node = el('aside.sidebar', {}, [
     el('div.sidebar__brand', {}, [
-      el('span.sidebar__logo', {}, [el('i.ti.ti-brand-trello', { 'aria-hidden': 'true' })]),
+      el('span.sidebar__logo', { text: 'A' }),
       el('span.sidebar__brand-name', { text: 'Atlas PM' }),
     ]),
     el(
