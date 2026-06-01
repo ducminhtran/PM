@@ -1,54 +1,95 @@
 /**
- * createStore — a minimal observable state container.
- *
- * This is the reactivity primitive the whole app is built on. Vanilla JS has
- * no reactivity, so we provide the missing link in the flow:
- *
- *   UI --action--> store.setState() --> subscribers notified --> UI re-renders
- *
- * Design notes:
- *  - State is treated as immutable: setState shallow-merges a NEW object.
- *    Never mutate state in place; the identity change is what lets views
- *    cheaply detect "something changed".
- *  - subscribe() returns an unsubscribe fn (so views can clean up on unmount).
- *  - Updaters can be a partial object OR a function (prevState) => partial,
- *    which avoids stale-closure bugs when updates depend on current state.
- *
- * It deliberately does NOT do: deep reactivity, selectors, middleware. Those
- * are added per-feature only if a real need appears (avoid speculative abstraction).
+ * router.js — a tiny History-API router.
  */
-export function createStore(initialState = {}) {
-  let state = { ...initialState };
-  const listeners = new Set();
+export function createRouter({ outlet, routes, notFound }) {
+  // Base path the app is served under (e.g. '/PM/' on GitHub Pages, '/' locally).
+  const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // -> '/PM' or ''
 
-  function getState() {
-    return state;
+  const stripBase = (path) => {
+    if (BASE && path.startsWith(BASE)) return path.slice(BASE.length) || '/';
+    return path || '/';
+  };
+  const withBase = (path) => `${BASE}${path.startsWith('/') ? path : '/' + path}`;
+
+  const compiled = routes.map((r) => ({
+    ...r,
+    ...compile(r.pattern),
+  }));
+
+  function compile(pattern) {
+    const keys = [];
+    const regex = new RegExp(
+      '^' +
+        pattern
+          .replace(/\//g, '\\/')
+          .replace(/:(\w+)/g, (_, k) => {
+            keys.push(k);
+            return '([^\\/]+)';
+          }) +
+        '\\/?$'
+    );
+    return { regex, keys };
   }
 
-  function setState(updater) {
-    const partial = typeof updater === 'function' ? updater(state) : updater;
-    if (partial == null) return;
-    const next = { ...state, ...partial };
-    state = next;
-    listeners.forEach((fn) => fn(state));
+  function parseQuery(search) {
+    return Object.fromEntries(new URLSearchParams(search));
   }
 
-  /**
-   * @param {(state) => void} listener
-   * @param {{ immediate?: boolean }} [opts] - fire once immediately with current state
-   * @returns {() => void} unsubscribe
-   */
-  function subscribe(listener, opts = {}) {
-    listeners.add(listener);
-    if (opts.immediate) listener(state);
-    return () => listeners.delete(listener);
+  function match(path) {
+    for (const route of compiled) {
+      const m = route.regex.exec(path);
+      if (m) {
+        const params = {};
+        route.keys.forEach((k, i) => (params[k] = decodeURIComponent(m[i + 1])));
+        return { route, params };
+      }
+    }
+    return null;
   }
 
-  /** Reset to a known state (useful on logout / project switch). */
-  function reset(nextState = initialState) {
-    state = { ...nextState };
-    listeners.forEach((fn) => fn(state));
+  let currentCleanup = null;
+
+  async function render() {
+    const path = stripBase(window.location.pathname);
+    const query = parseQuery(window.location.search);
+    const matched = match(path);
+
+    if (typeof currentCleanup === 'function') {
+      try { currentCleanup(); } catch { /* ignore cleanup errors */ }
+      currentCleanup = null;
+    }
+
+    if (!matched) {
+      currentCleanup = await notFound?.({ outlet, path });
+      return;
+    }
+    currentCleanup = await matched.route.handler({
+      outlet,
+      params: matched.params,
+      query,
+    });
   }
 
-  return { getState, setState, subscribe, reset };
+  function navigate(to, { replace = false } = {}) {
+    const target = withBase(to);
+    if (target === window.location.pathname + window.location.search) return;
+    if (replace) window.history.replaceState({}, '', target);
+    else window.history.pushState({}, '', target);
+    render();
+  }
+
+  function start() {
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('a[data-link]');
+      if (!a) return;
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('http')) return;
+      e.preventDefault();
+      navigate(href);
+    });
+    window.addEventListener('popstate', render);
+    render();
+  }
+
+  return { start, navigate, render };
 }
