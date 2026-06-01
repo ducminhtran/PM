@@ -6,6 +6,7 @@
  * resolver and shared components. No new fetch patterns invented.
  */
 import { el, mount } from '../../shared/utils/dom.js';
+import { Icon } from '../../shared/components/icon.js';
 import { Badge } from '../../shared/components/badge.js';
 import { Priority } from '../../shared/components/priority.js';
 import { Avatar } from '../../shared/components/avatar.js';
@@ -39,7 +40,7 @@ export function ProjectDetailView({ outlet, params, navigate, setTitle }) {
 
     const head = el('div.detail-head', {}, [
       el('button.btn.btn--ghost', { type: 'button', on: { click: () => navigate('/projects') } }, [
-        el('i.ti.ti-arrow-left', { 'aria-hidden': 'true' }), 'Projects',
+        Icon('arrow-left', { size: 16 }), 'Projects',
       ]),
       el('div.detail-head__main', {}, [
         el('span.mono.detail-head__key', { text: project.key }),

@@ -6,6 +6,7 @@
  * not assume how it's used (create form, confirm dialog, detail panel).
  */
 import { el } from '../utils/dom.js';
+import { Icon } from './icon.js';
 
 export function Modal({ title, content, onClose, size = 'md' } = {}) {
   let onEsc;
@@ -13,7 +14,7 @@ export function Modal({ title, content, onClose, size = 'md' } = {}) {
   const closeBtn = el(
     'button.modal__close',
     { type: 'button', 'aria-label': 'Close', on: { click: () => close() } },
-    [el('i.ti.ti-x', { 'aria-hidden': 'true' })]
+    [Icon('x', { size: 20 })]
   );
 
   const dialog = el(`div.modal__dialog.modal__dialog--${size}`, { role: 'dialog', 'aria-modal': 'true' }, [

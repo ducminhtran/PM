@@ -1,5 +1,6 @@
 /** Topbar — page title + global search placeholder + current user avatar. */
 import { el } from '../utils/dom.js';
+import { Icon } from '../components/icon.js';
 import { Avatar } from '../components/avatar.js';
 
 export function Topbar({ user } = {}) {
@@ -8,7 +9,7 @@ export function Topbar({ user } = {}) {
     titleEl,
     el('div.topbar__actions', {}, [
       el('div.topbar__search', {}, [
-        el('i.ti.ti-search', { 'aria-hidden': 'true' }),
+        Icon('search', { size: 16 }),
         el('input.topbar__search-input', { type: 'search', placeholder: 'Search…', 'aria-label': 'Search' }),
       ]),
       Avatar({ name: user?.full_name ?? 'Guest', url: user?.avatar_url, size: 30 }),

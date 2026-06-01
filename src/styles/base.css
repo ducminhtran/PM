@@ -66,3 +66,8 @@ button { font-family: inherit; }
 .state-error i { font-size: 28px; }
 .fatal { max-width: 520px; margin: 80px auto; padding: var(--sp-6); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-md); }
 .fatal code { background: var(--c-bg); padding: 1px 5px; border-radius: var(--radius-sm); font-family: var(--font-mono); }
+
+/* ---- Icon SVG nội bộ (thay webfont) ---- */
+.icon { display: inline-block; vertical-align: -0.15em; flex-shrink: 0; }
+.btn .icon, .priority .icon, .cell-type .icon, .badge .icon { vertical-align: middle; }
+.btn .icon { margin-right: -2px; }

@@ -3,6 +3,7 @@
  * intercepted by the router). Highlights the active route.
  */
 import { el } from '../utils/dom.js';
+import { Icon } from '../components/icon.js';
 
 const NAV = [
   { href: '/', label: 'Dashboard', icon: 'layout-dashboard' },
@@ -23,7 +24,7 @@ export function Sidebar() {
       {},
       NAV.map((item) =>
         el('a.sidebar__link', { href: item.href, 'data-link': '', dataset: { href: item.href } }, [
-          el(`i.ti.ti-${item.icon}`, { 'aria-hidden': 'true' }),
+          Icon(item.icon, { size: 18 }),
           el('span', { text: item.label }),
         ])
       )

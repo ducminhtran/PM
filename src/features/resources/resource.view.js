@@ -6,6 +6,7 @@
  * project_id; the resolver turns those into names at render time.
  */
 import { el, mount } from '../../shared/utils/dom.js';
+import { Icon } from '../../shared/components/icon.js';
 import { Table } from '../../shared/components/table.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { Badge } from '../../shared/components/badge.js';
@@ -32,7 +33,7 @@ export function ResourcesView({ outlet, setTitle }) {
   const header = el('div.page-header', {}, [
     el('h2.page-header__title', { text: 'Resources' }),
     el('button.btn.btn--primary', { type: 'button', on: { click: openCreate } }, [
-      el('i.ti.ti-plus', { 'aria-hidden': 'true' }), 'Allocate',
+      Icon('plus', { size: 16 }), 'Allocate',
     ]),
   ]);
   mount(outlet, el('div.page', {}, [header, section.node]));

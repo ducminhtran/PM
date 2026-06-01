@@ -6,6 +6,7 @@
  * Orchestration only — no fetch, no inline handlers.
  */
 import { el, mount } from '../../shared/utils/dom.js';
+import { Icon } from '../../shared/components/icon.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
 import { Priority } from '../../shared/components/priority.js';
 import { Avatar } from '../../shared/components/avatar.js';
@@ -31,7 +32,7 @@ export function TasksView({ outlet, setTitle, query }) {
   const header = el('div.page-header', {}, [
     el('h2.page-header__title', { text: 'Tasks' }),
     el('button.btn.btn--primary', { type: 'button', on: { click: openCreate } }, [
-      el('i.ti.ti-plus', { 'aria-hidden': 'true' }), 'New task',
+      Icon('plus', { size: 16 }), 'New task',
     ]),
   ]);
 

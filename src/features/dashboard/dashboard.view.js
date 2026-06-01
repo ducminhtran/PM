@@ -4,6 +4,7 @@
  * and recent activity. Composes other features' state, never re-fetches.
  */
 import { el, mount } from '../../shared/utils/dom.js';
+import { Icon } from '../../shared/components/icon.js';
 import { Spinner } from '../../shared/components/spinner.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { relativeTime } from '../../shared/utils/format.js';
@@ -38,7 +39,7 @@ export function DashboardView({ outlet, setTitle, navigate }) {
     // ---- Stat cards (icon màu + số) ----
     const stat = (label, value, icon, tone, href) =>
       el('button.stat-card', { type: 'button', on: { click: () => navigate(href) } }, [
-        el('span.stat-card__icon', { dataset: { tone } }, [el(`i.ti.ti-${icon}`, { 'aria-hidden': 'true' })]),
+        el('span.stat-card__icon', { dataset: { tone } }, [Icon(icon, { size: 18 })]),
         el('span.stat-card__value', { text: String(value) }),
         el('span.stat-card__label', { text: label }),
       ]);

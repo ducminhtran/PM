@@ -4,6 +4,7 @@
  * flows through the store. Orchestration only.
  */
 import { el, mount } from '../../shared/utils/dom.js';
+import { Icon } from '../../shared/components/icon.js';
 import { Table } from '../../shared/components/table.js';
 import { Priority } from '../../shared/components/priority.js';
 import { Avatar } from '../../shared/components/avatar.js';
@@ -11,7 +12,7 @@ import { AsyncSection } from '../../shared/components/async-section.js';
 import { emptyState } from '../../shared/components/empty-state.js';
 import { Modal } from '../../shared/components/modal.js';
 import { toast } from '../../shared/components/toast.js';
-import { ISSUE_STATUS, PRIORITY, ISSUE_TYPE } from '../../core/config.js';
+import { ISSUE_STATUS, ISSUE_TYPE } from '../../core/config.js';
 import { appStore } from '../../app.store.js';
 import { issueStore } from './issue.store.js';
 import { IssueForm } from './components/issue-form.js';
@@ -30,7 +31,7 @@ export function IssuesView({ outlet, setTitle }) {
   const header = el('div.page-header', {}, [
     el('h2.page-header__title', { text: 'Issues' }),
     el('button.btn.btn--primary', { type: 'button', on: { click: openCreate } }, [
-      el('i.ti.ti-plus', { 'aria-hidden': 'true' }), 'Report issue',
+      Icon('plus', { size: 16 }), 'Report issue',
     ]),
   ]);
   mount(outlet, el('div.page', {}, [header, section.node]));
@@ -41,7 +42,7 @@ export function IssuesView({ outlet, setTitle }) {
       columns: [
         { key: 'type', header: 'Type', width: '110px', render: (i) => {
           const t = ISSUE_TYPE[i.type] ?? { label: i.type };
-          return el('span.cell-type', {}, [el(`i.ti.ti-${t.icon ?? 'circle'}`, { 'aria-hidden': 'true' }), el('span', { text: t.label })]);
+          return el('span.cell-type', {}, [Icon(t.icon ?? 'circle', { size: 16 }), el('span', { text: t.label })]);
         } },
         { key: 'title', header: 'Summary', render: (i) => el('span.cell-strong', { text: i.title }) },
         { key: 'project_id', header: 'Project', width: '110px', render: (i) => el('span.mono', { text: r.projectKey(i.project_id) }) },

@@ -16,6 +16,7 @@
  */
 import { el, mount } from '../utils/dom.js';
 import { Spinner } from './spinner.js';
+import { Icon } from './icon.js';
 
 export function AsyncSection({ render, empty, onRetry } = {}) {
   const node = el('div.async-section');
@@ -28,7 +29,7 @@ export function AsyncSection({ render, empty, onRetry } = {}) {
     mount(
       node,
       el('div.state-center.state-error', {}, [
-        el('i.ti.ti-alert-triangle', { 'aria-hidden': 'true' }),
+        Icon('alert-triangle', { size: 28 }),
         el('p.state-error__msg', { text: error?.message ?? 'Something went wrong' }),
         onRetry &&
           el('button.btn.btn--secondary', { type: 'button', on: { click: onRetry } }, ['Retry']),

@@ -1,8 +1,9 @@
 /**
- * Toast — transient notifications. Driven by the eventBus so any module can
- * fire 'toast:show' without importing this. Mounted once in the app shell.
+ * Toast — thông báo tạm. Chạy qua eventBus để mọi module phát 'toast:show'.
+ * Gắn một lần trong app shell.
  */
 import { el } from '../utils/dom.js';
+import { Icon } from './icon.js';
 import { bus } from '../../core/eventBus.js';
 
 let container;
@@ -13,7 +14,7 @@ export function mountToasts() {
   document.body.append(container);
   bus.on('toast:show', ({ message, type = 'info', duration = 3500 }) => {
     const toast = el(`div.toast.toast--${type}`, {}, [
-      el(`i.ti.ti-${iconFor(type)}`, { 'aria-hidden': 'true' }),
+      Icon(iconFor(type), { size: 18 }),
       el('span', { text: message }),
     ]);
     container.append(toast);

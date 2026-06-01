@@ -9,6 +9,7 @@
  * subscription is torn down — no leaks.
  */
 import { el, mount } from '../../shared/utils/dom.js';
+import { Icon } from '../../shared/components/icon.js';
 import { Table } from '../../shared/components/table.js';
 import { Badge } from '../../shared/components/badge.js';
 import { Avatar } from '../../shared/components/avatar.js';
@@ -38,7 +39,7 @@ export function ProjectsView({ outlet, navigate, setTitle }) {
   const header = el('div.page-header', {}, [
     el('div', {}, [el('h2.page-header__title', { text: 'Projects' })]),
     el('button.btn.btn--primary', { type: 'button', on: { click: openCreate } }, [
-      el('i.ti.ti-plus', { 'aria-hidden': 'true' }),
+      Icon('plus', { size: 16 }),
       'New project',
     ]),
   ]);
