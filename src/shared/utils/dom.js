@@ -65,14 +65,3 @@ function appendChildren(node, children) {
 export function mount(container, ...nodes) {
   container.replaceChildren(...nodes.flat().filter(Boolean));
 }
-
-/** Query helpers. */
-export const $ = (sel, root = document) => root.querySelector(sel);
-export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-
-/** Build a fragment from an array (handy for lists). */
-export function fragment(nodes) {
-  const f = document.createDocumentFragment();
-  appendChildren(f, nodes);
-  return f;
-}
