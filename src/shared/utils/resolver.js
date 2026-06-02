@@ -19,11 +19,15 @@ export function indexById(rows = []) {
 
 /**
  * Create a resolver over the app's reference collections.
- * @param {{ members?: Map, projects?: Map }} maps
+ * @param {{ members?, projects?, taskStatuses?, priorities?, issueStatuses?, issueTypes? }} maps
  */
 export function createResolver(maps = {}) {
   const members = maps.members ?? new Map();
   const projects = maps.projects ?? new Map();
+  const taskStatuses = maps.taskStatuses ?? new Map();
+  const priorities = maps.priorities ?? new Map();
+  const issueStatuses = maps.issueStatuses ?? new Map();
+  const issueTypes = maps.issueTypes ?? new Map();
 
   return {
     member: (id) => (id ? members.get(id) ?? null : null),
@@ -31,5 +35,10 @@ export function createResolver(maps = {}) {
     project: (id) => (id ? projects.get(id) ?? null : null),
     projectName: (id) => projects.get(id)?.name ?? '—',
     projectKey: (id) => projects.get(id)?.key ?? '—',
+    // danh mục: trả nguyên dòng (có label, color, tone, icon, code...)
+    taskStatus: (id) => taskStatuses.get(id) ?? null,
+    priority: (id) => priorities.get(id) ?? null,
+    issueStatus: (id) => issueStatuses.get(id) ?? null,
+    issueType: (id) => issueTypes.get(id) ?? null,
   };
 }
