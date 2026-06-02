@@ -8,14 +8,13 @@
 import { el, mount } from '../../shared/utils/dom.js';
 import { Icon } from '../../shared/components/icon.js';
 import { Badge } from '../../shared/components/badge.js';
-import { Priority } from '../../shared/components/priority.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { Spinner } from '../../shared/components/spinner.js';
 import { Table } from '../../shared/components/table.js';
 import { emptyState } from '../../shared/components/empty-state.js';
 import { toast } from '../../shared/components/toast.js';
 import { formatDate } from '../../shared/utils/format.js';
-import { PROJECT_STATUS, TASK_STATUS } from '../../core/config.js';
+import { PROJECT_STATUS } from '../../core/config.js';
 import { appStore } from '../../app.store.js';
 import { projectService } from './project.service.js';
 import { taskService } from './../tasks/task.service.js';
@@ -67,8 +66,8 @@ export function ProjectDetailView({ outlet, params, navigate, setTitle }) {
       ? Table({
           columns: [
             { key: 'title', header: 'Title', render: (t) => el('span.cell-strong', { text: t.title }) },
-            { key: 'status', header: 'Status', width: '130px', render: (t) => { const s = TASK_STATUS[t.status]; return Badge({ label: s.label, tone: s.tone }); } },
-            { key: 'priority', header: 'Priority', width: '110px', render: (t) => { return Priority({ value: t.priority }); } },
+            { key: 'status', header: 'Status', width: '130px', render: (t) => { const s = r.taskStatus(t.status_id); return s ? Badge({ label: s.label, tone: s.tone }) : '—'; } },
+            { key: 'priority', header: 'Priority', width: '110px', render: (t) => { const p = r.priority(t.priority_id); return p ? Badge({ label: p.label, tone: p.tone, icon: p.icon }) : '—'; } },
             { key: 'assignee_id', header: 'Assignee', width: '160px', render: (t) => { const m = r.member(t.assignee_id); return el('span.cell-user', {}, [Avatar({ name: m?.full_name ?? 'Unassigned', url: m?.avatar_url, size: 24 }), el('span', { text: m?.full_name ?? 'Unassigned' })]); } },
             { key: 'progress', header: 'Progress', width: '120px', render: (t) => el('span.progress', {}, [el('span.progress__bar', { style: { width: `${t.progress ?? 0}%` } })]) },
           ],
