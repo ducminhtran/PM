@@ -21,6 +21,7 @@ const PROJECT_NAV = [
 const GLOBAL_NAV = [
   { section: 'projects',  label: 'Projects',  icon: 'folder', href: '/projects' },
   { section: 'resources', label: 'Resources', icon: 'users',  href: '/resources' },
+  { section: 'settings',  label: 'Categories', icon: 'check', href: '/settings/categories' },
 ];
 
 export function Sidebar() {
