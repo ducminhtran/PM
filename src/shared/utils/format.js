@@ -39,11 +39,3 @@ export function hashHue(str = '') {
   for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
   return h;
 }
-
-export function clamp(n, min, max) {
-  return Math.min(max, Math.max(min, n));
-}
-
-export function pluralize(count, singular, plural = `${singular}s`) {
-  return `${count} ${count === 1 ? singular : plural}`;
-}
