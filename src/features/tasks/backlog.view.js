@@ -6,14 +6,12 @@ import { el, mount } from '../../shared/utils/dom.js';
 import { Icon } from '../../shared/components/icon.js';
 import { Table } from '../../shared/components/table.js';
 import { Badge } from '../../shared/components/badge.js';
-import { Priority } from '../../shared/components/priority.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
 import { emptyState } from '../../shared/components/empty-state.js';
 import { Modal } from '../../shared/components/modal.js';
 import { toast } from '../../shared/components/toast.js';
 import { formatDate } from '../../shared/utils/format.js';
-import { TASK_STATUS } from '../../core/config.js';
 import { appStore } from '../../app.store.js';
 import { taskStore } from './task.store.js';
 import { TaskForm } from './components/task-form.js';
@@ -43,8 +41,8 @@ export function BacklogView({ outlet, setTitle, projectId }) {
     return Table({
       columns: [
         { key: 'title', header: 'Title', render: (t) => el('span.cell-strong', { text: t.title }) },
-        { key: 'status', header: 'Status', width: '130px', render: (t) => { const s = TASK_STATUS[t.status]; return Badge({ label: s.label, tone: s.tone }); } },
-        { key: 'priority', header: 'Priority', width: '120px', render: (t) => Priority({ value: t.priority }) },
+        { key: 'status', header: 'Status', width: '130px', render: (t) => { const s = r.taskStatus(t.status_id); return s ? Badge({ label: s.label, tone: s.tone }) : '—'; } },
+        { key: 'priority', header: 'Priority', width: '120px', render: (t) => { const p = r.priority(t.priority_id); return p ? Badge({ label: p.label, tone: p.tone, icon: p.icon }) : '—'; } },
         { key: 'assignee_id', header: 'Assignee', width: '170px', render: (t) => {
           const m = r.member(t.assignee_id);
           return el('span.cell-user', {}, [Avatar({ name: m?.full_name ?? 'Unassigned', url: m?.avatar_url, size: 24 }), el('span', { text: m?.full_name ?? 'Unassigned' })]);

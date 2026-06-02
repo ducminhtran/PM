@@ -1,23 +1,20 @@
 /**
- * task.view.js — the Tasks screen, rendered as a Jira-style board.
+ * task.view.js — màn Tasks dạng board kiểu Jira.
  *
- * Columns map to task statuses. Cards resolve assignee_id -> member via the
- * global resolver. Moving a card calls taskStore.updateStatus (optimistic).
- * Orchestration only — no fetch, no inline handlers.
+ * Cột sinh động từ DANH MỤC task_statuses (sắp theo position). Card resolve
+ * status_id/priority_id/assignee_id qua resolver toàn cục. Kéo-thả hoặc đổi
+ * dropdown -> taskStore.updateStatus(id, statusId) (optimistic). Chỉ điều phối.
  */
 import { el, mount } from '../../shared/utils/dom.js';
 import { Icon } from '../../shared/components/icon.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
-import { Priority } from '../../shared/components/priority.js';
+import { Badge } from '../../shared/components/badge.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { Modal } from '../../shared/components/modal.js';
 import { toast } from '../../shared/components/toast.js';
-import { TASK_STATUS, PRIORITY } from '../../core/config.js';
 import { appStore } from '../../app.store.js';
 import { taskStore } from './task.store.js';
 import { TaskForm } from './components/task-form.js';
-
-const COLUMNS = ['todo', 'in_progress', 'in_review', 'done', 'blocked'];
 
 export function TasksView({ outlet, setTitle, query }) {
   setTitle?.('Tasks');
@@ -40,9 +37,11 @@ export function TasksView({ outlet, setTitle, query }) {
 
   function buildBoard(rows) {
     const r = appStore.getResolver();
-    // Tính "mã task" kiểu Jira: KEY-1, KEY-2... ổn định theo thứ tự tạo trong từng project.
-    const seqByProject = new Map(); // projectId -> đếm
-    const keyByTask = new Map();    // taskId -> "ATL-3"
+    const columns = appStore.getState().taskStatuses; // sắp sẵn theo position
+
+    // Mã task kiểu Jira: KEY-1, KEY-2... ổn định theo thứ tự tạo trong từng project.
+    const seqByProject = new Map();
+    const keyByTask = new Map();
     const ordered = [...rows].sort((a, b) =>
       String(a.created_at ?? a.id).localeCompare(String(b.created_at ?? b.id))
     );
@@ -53,33 +52,31 @@ export function TasksView({ outlet, setTitle, query }) {
     }
 
     const board = el('div.board');
-    for (const status of COLUMNS) {
-      const cfg = TASK_STATUS[status];
-      const colTasks = rows.filter((t) => t.status === status);
+    for (const col of columns) {
+      const colTasks = rows.filter((t) => t.status_id === col.id);
       const cards = el('div.board__cards', {
-        dataset: { status },
+        dataset: { statusId: col.id },
         on: {
           dragover: (e) => {
-            e.preventDefault();                 // cho phép thả
+            e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
             cards.classList.add('board__cards--over');
           },
           dragleave: (e) => {
-            // chỉ bỏ highlight khi rời hẳn vùng cột (không phải qua card con)
             if (!cards.contains(e.relatedTarget)) cards.classList.remove('board__cards--over');
           },
           drop: (e) => {
             e.preventDefault();
             cards.classList.remove('board__cards--over');
             const id = e.dataTransfer.getData('text/plain');
-            if (id && status) moveTask(id, status);
+            if (id && col.id) moveTask(id, col.id);
           },
         },
-      }, colTasks.map((t) => card(t, r, keyByTask.get(t.id))));
+      }, colTasks.map((t) => card(t, r, keyByTask.get(t.id), columns)));
 
-      const column = el('div.board__column', { dataset: { status } }, [
+      const column = el('div.board__column', { dataset: { statusId: col.id } }, [
         el('div.board__column-head', {}, [
-          el('span.board__column-title', { text: cfg.label }),
+          el('span.board__column-title', { text: col.label }),
           el('span.board__column-count', { text: String(colTasks.length) }),
         ]),
         cards,
@@ -89,14 +86,15 @@ export function TasksView({ outlet, setTitle, query }) {
     return board;
   }
 
-  function card(task, r, taskKey) {
+  function card(task, r, taskKey, columns) {
     const member = r.member(task.assignee_id);
-    const prio = PRIORITY[task.priority] ?? PRIORITY.medium;
-    const isDone = task.status === 'done';
+    const prio = r.priority(task.priority_id);
+    const status = r.taskStatus(task.status_id);
+    const isDone = status?.code === 'done';
     const node = el('article.task-card', {
       draggable: 'true',
       dataset: { id: task.id },
-      style: { '--prio-color': prio.color },
+      style: { '--prio-color': prio?.color ?? 'var(--c-border-strong)' },
       on: {
         dragstart: (e) => {
           e.dataTransfer.setData('text/plain', task.id);
@@ -108,12 +106,10 @@ export function TasksView({ outlet, setTitle, query }) {
     }, [
       el('p.task-card__title', { text: task.title }),
       task.progress != null && task.progress > 0 && !isDone
-        ? el('span.progress', {}, [
-            el('span.progress__bar', { style: { width: `${task.progress}%` } }),
-          ])
+        ? el('span.progress', {}, [el('span.progress__bar', { style: { width: `${task.progress}%` } })])
         : null,
       el('div.task-card__meta', {}, [
-        Priority({ value: task.priority }),
+        prio ? Badge({ label: prio.label, tone: prio.tone, icon: prio.icon }) : null,
         (task.progress != null && task.progress > 0 && !isDone)
           ? el('span', { class: 'task-card__key', text: `${task.progress}%` })
           : null,
@@ -127,8 +123,8 @@ export function TasksView({ outlet, setTitle, query }) {
               click: (e) => e.stopPropagation(),
               change: (e) => moveTask(task.id, e.target.value),
             },
-          }, COLUMNS.map((s) =>
-            el('option', { value: s, text: TASK_STATUS[s].label, selected: s === task.status })
+          }, columns.map((s) =>
+            el('option', { value: s.id, text: s.label, selected: s.id === task.status_id })
           )),
           Avatar({ name: member?.full_name ?? 'Unassigned', url: member?.avatar_url, size: 24 }),
         ]),
@@ -138,11 +134,11 @@ export function TasksView({ outlet, setTitle, query }) {
     return node;
   }
 
-  async function moveTask(id, status) {
+  async function moveTask(id, statusId) {
     const current = taskStore.getState().items.find((t) => t.id === id);
-    if (!current || current.status === status) return; // không đổi -> bỏ qua
+    if (!current || current.status_id === statusId) return; // không đổi -> bỏ qua
     try {
-      await taskStore.updateStatus(id, status);
+      await taskStore.updateStatus(id, statusId);
     } catch (err) {
       toast(err.message, 'error');
     }
