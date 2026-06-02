@@ -15,7 +15,7 @@ import { Table } from '../../shared/components/table.js';
 import { emptyState } from '../../shared/components/empty-state.js';
 import { toast } from '../../shared/components/toast.js';
 import { formatDate } from '../../shared/utils/format.js';
-import { PROJECT_STATUS, TASK_STATUS, PRIORITY } from '../../core/config.js';
+import { PROJECT_STATUS, TASK_STATUS } from '../../core/config.js';
 import { appStore } from '../../app.store.js';
 import { projectService } from './project.service.js';
 import { taskService } from './../tasks/task.service.js';

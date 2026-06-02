@@ -8,7 +8,7 @@
  */
 
 /** Field whitelist that may be written to the DB (prevents leaking UI-only fields). */
-export const PROJECT_WRITABLE = [
+const PROJECT_WRITABLE = [
   'key', 'name', 'description', 'status', 'lead_id', 'start_date', 'end_date',
 ];
 
