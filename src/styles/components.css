@@ -211,3 +211,11 @@
 .color-pick { display: flex; align-items: center; gap: var(--sp-2); } .color-pick .cat-swatch { width: 20px; height: 20px; }
 .btn--danger { background: var(--c-error); color: #fff; }
 .btn--danger:hover { background: #B92500; }
+
+/* ---- Icon picker ---- */
+.icon-picker__wrap { display: flex; flex-direction: column; gap: var(--sp-2); }
+.icon-picker__search { font-size: var(--fs-small); }
+.icon-picker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; max-height: 140px; overflow-y: auto; padding: 2px; border: 1px solid var(--c-border); border-radius: var(--radius-sm); }
+.icon-picker__item { display: grid; place-items: center; height: 34px; border: 1px solid transparent; background: transparent; border-radius: var(--radius-sm); cursor: pointer; color: var(--c-text-secondary); }
+.icon-picker__item:hover { background: var(--c-bg); color: var(--c-text-primary); }
+.icon-picker__item--active { background: #E9F2FF; color: var(--c-brand); border-color: var(--c-brand); }
