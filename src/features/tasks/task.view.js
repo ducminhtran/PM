@@ -56,12 +56,33 @@ export function TasksView({ outlet, setTitle, query }) {
     for (const status of COLUMNS) {
       const cfg = TASK_STATUS[status];
       const colTasks = rows.filter((t) => t.status === status);
+      const cards = el('div.board__cards', {
+        dataset: { status },
+        on: {
+          dragover: (e) => {
+            e.preventDefault();                 // cho phép thả
+            e.dataTransfer.dropEffect = 'move';
+            cards.classList.add('board__cards--over');
+          },
+          dragleave: (e) => {
+            // chỉ bỏ highlight khi rời hẳn vùng cột (không phải qua card con)
+            if (!cards.contains(e.relatedTarget)) cards.classList.remove('board__cards--over');
+          },
+          drop: (e) => {
+            e.preventDefault();
+            cards.classList.remove('board__cards--over');
+            const id = e.dataTransfer.getData('text/plain');
+            if (id && status) moveTask(id, status);
+          },
+        },
+      }, colTasks.map((t) => card(t, r, keyByTask.get(t.id))));
+
       const column = el('div.board__column', { dataset: { status } }, [
         el('div.board__column-head', {}, [
           el('span.board__column-title', { text: cfg.label }),
           el('span.board__column-count', { text: String(colTasks.length) }),
         ]),
-        el('div.board__cards', {}, colTasks.map((t) => card(t, r, keyByTask.get(t.id)))),
+        cards,
       ]);
       board.append(column);
     }
@@ -73,8 +94,17 @@ export function TasksView({ outlet, setTitle, query }) {
     const prio = PRIORITY[task.priority] ?? PRIORITY.medium;
     const isDone = task.status === 'done';
     const node = el('article.task-card', {
+      draggable: 'true',
       dataset: { id: task.id },
       style: { '--prio-color': prio.color },
+      on: {
+        dragstart: (e) => {
+          e.dataTransfer.setData('text/plain', task.id);
+          e.dataTransfer.effectAllowed = 'move';
+          node.classList.add('task-card--dragging');
+        },
+        dragend: () => node.classList.remove('task-card--dragging'),
+      },
     }, [
       el('p.task-card__title', { text: task.title }),
       task.progress != null && task.progress > 0 && !isDone
@@ -109,6 +139,8 @@ export function TasksView({ outlet, setTitle, query }) {
   }
 
   async function moveTask(id, status) {
+    const current = taskStore.getState().items.find((t) => t.id === id);
+    if (!current || current.status === status) return; // không đổi -> bỏ qua
     try {
       await taskStore.updateStatus(id, status);
     } catch (err) {
