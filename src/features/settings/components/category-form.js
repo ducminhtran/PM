@@ -4,6 +4,7 @@
  * xem trước — không dùng hex. Trường hiển thị tùy loại (icon/tone).
  */
 import { el } from '../../../shared/utils/dom.js';
+import { IconPicker } from '../../../shared/components/icon-picker.js';
 import { CATEGORY_TYPES } from '../category.service.js';
 
 const TONES = ['neutral', 'blue', 'amber', 'green', 'red', 'purple'];
@@ -66,11 +67,11 @@ export function CategoryForm({ typeKey, initial, onSubmit, onCancel } = {}) {
     inputs.push(el('div.form-grid', {}, [colorField, field('tone', 'Tone (badge)', toneSelect)]));
   }
 
-  // Icon (priorities, issue types)
-  let iconInput;
+  // Icon (priorities, issue types) — bộ chọn trực quan
+  let iconPicker;
   if (def.hasIcon) {
-    iconInput = el('input.input', { value: data.icon ?? '', placeholder: 'vd: arrow-up, bug, check' });
-    inputs.push(field('icon', 'Icon', iconInput));
+    iconPicker = IconPicker({ value: data.icon });
+    inputs.push(field('icon', 'Icon', iconPicker.node));
   }
 
   inputs.push(field('position', 'Order', posInput));
@@ -84,7 +85,7 @@ export function CategoryForm({ typeKey, initial, onSubmit, onCancel } = {}) {
         const payload = { ...data, label: labelInput.value, position: Number(posInput.value) || 0 };
         if (colorSelect) payload.color = colorSelect.value; // 'var(--c-...)'
         if (toneSelect) payload.tone = toneSelect.value;
-        if (iconInput) payload.icon = iconInput.value || null;
+        if (iconPicker) payload.icon = iconPicker.getValue() || null;
         onSubmit?.(payload, { setErrors });
       },
     },
