@@ -1,18 +1,16 @@
 /**
- * issue.view.js — the Issues screen, rendered as a table (Jira issue list).
- * Resolves project/assignee IDs via the global resolver. Inline status change
- * flows through the store. Orchestration only.
+ * issue.view.js — màn Issues dạng bảng. Resolve type/status/priority/assignee
+ * qua resolver (lấy từ DANH MỤC động). Đổi status inline qua store. Điều phối.
  */
 import { el, mount } from '../../shared/utils/dom.js';
 import { Icon } from '../../shared/components/icon.js';
 import { Table } from '../../shared/components/table.js';
-import { Priority } from '../../shared/components/priority.js';
+import { Badge } from '../../shared/components/badge.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
 import { emptyState } from '../../shared/components/empty-state.js';
 import { Modal } from '../../shared/components/modal.js';
 import { toast } from '../../shared/components/toast.js';
-import { ISSUE_STATUS, ISSUE_TYPE } from '../../core/config.js';
 import { appStore } from '../../app.store.js';
 import { issueStore } from './issue.store.js';
 import { IssueForm } from './components/issue-form.js';
@@ -38,23 +36,25 @@ export function IssuesView({ outlet, setTitle, projectId }) {
 
   function buildTable(rows) {
     const r = appStore.getResolver();
+    const issueStatuses = appStore.getState().issueStatuses;
     return Table({
       columns: [
         { key: 'type', header: 'Type', width: '110px', render: (i) => {
-          const t = ISSUE_TYPE[i.type] ?? { label: i.type };
-          return el('span.cell-type', {}, [Icon(t.icon ?? 'circle', { size: 16 }), el('span', { text: t.label })]);
+          const t = r.issueType(i.type_id);
+          return el('span.cell-type', {}, [Icon(t?.icon ?? 'circle', { size: 16 }), el('span', { text: t?.label ?? '—' })]);
         } },
         { key: 'title', header: 'Summary', render: (i) => el('span.cell-strong', { text: i.title }) },
         { key: 'project_id', header: 'Project', width: '110px', render: (i) => el('span.mono', { text: r.projectKey(i.project_id) }) },
         { key: 'priority', header: 'Priority', width: '110px', render: (i) => {
-          return Priority({ value: i.priority });
+          const p = r.priority(i.priority_id);
+          return p ? Badge({ label: p.label, tone: p.tone, icon: p.icon }) : '—';
         } },
         { key: 'status', header: 'Status', width: '150px', render: (i) => {
-          const cfg = ISSUE_STATUS[i.status] ?? { label: i.status };
+          const cur = r.issueStatus(i.status_id);
           const sel = el('select.inline-select', { 'aria-label': 'Status',
             on: { click: (e) => e.stopPropagation(), change: (e) => changeStatus(i.id, e.target.value) } },
-            Object.entries(ISSUE_STATUS).map(([v, c]) => el('option', { value: v, text: c.label, selected: v === i.status })));
-          sel.style.setProperty('--badge-color', cfg.color);
+            issueStatuses.map((s) => el('option', { value: s.id, text: s.label, selected: s.id === i.status_id })));
+          if (cur?.color) sel.style.setProperty('--badge-color', cur.color);
           return sel;
         } },
         { key: 'assignee_id', header: 'Assignee', width: '150px', render: (i) => {
@@ -66,12 +66,13 @@ export function IssuesView({ outlet, setTitle, projectId }) {
     });
   }
 
-  async function changeStatus(id, status) {
-    try { await issueStore.updateStatus(id, status); } catch (err) { toast(err.message, 'error'); }
+  async function changeStatus(id, statusId) {
+    try { await issueStore.updateStatus(id, statusId); } catch (err) { toast(err.message, 'error'); }
   }
 
   function openCreate() {
     const form = IssueForm({
+      initial: { project_id: projectId },
       onCancel: () => modal.close(),
       onSubmit: async (payload, { setErrors }) => {
         form.setSubmitting(true);

@@ -17,11 +17,15 @@ async function create(form) {
   store.setState((s) => ({ items: [created, ...s.items] }));
   return created;
 }
-async function updateStatus(id, status) {
+async function updateStatus(id, statusId) {
   const prev = store.getState().items;
-  store.setState({ items: prev.map((i) => (i.id === id ? { ...i, status } : i)) });
+  const { appStore } = await import('../../app.store.js');
+  const code = appStore.getResolver().issueStatus(statusId)?.code ?? null;
+  store.setState({ items: prev.map((i) => (i.id === id ? { ...i, status_id: statusId, status: code ?? i.status } : i)) });
   try {
-    const updated = await issueService.patch(id, { status });
+    const patch = { status_id: statusId };
+    if (code) patch.status = code;
+    const updated = await issueService.patch(id, patch);
     store.setState((s) => ({ items: s.items.map((i) => (i.id === id ? updated : i)) }));
     return updated;
   } catch (e) { store.setState({ items: prev }); throw e; }
