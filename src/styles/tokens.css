@@ -10,6 +10,15 @@
   --c-teal:         #00B8D9;
   --c-purple:       #6554C0;
 
+  /* ---- Tông màu mở rộng (cho status/priority/loại) ---- */
+  --c-orange:  #E56910;
+  --c-magenta: #CD519D;
+  --c-lime:    #6A9A23;
+  --c-navy:    #2B4380;
+  --c-pink:    #E774BB;
+  --c-cyan:    #1D7AFC;
+  --c-black:   #172B4D;
+
   /* ---- Neutral ---- */
   --c-text-primary:   #172B4D;
   --c-text-secondary: #5E6C84;
