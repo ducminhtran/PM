@@ -2,9 +2,9 @@
  * TaskForm — form tạo/sửa task. Đổ option project/assignee/status/priority từ
  * appStore (status & priority lấy từ DANH MỤC động). Phát payload qua onSubmit.
  */
+import { appStore } from '../../../app.store.js';
 import { el } from '../../../shared/utils/dom.js';
 import { emptyTask } from '../task.model.js';
-import { appStore } from '../../../app.store.js';
 
 export function TaskForm({ initial, onSubmit, onCancel } = {}) {
   const data = { ...emptyTask(initial?.project_id ?? null), ...initial };
