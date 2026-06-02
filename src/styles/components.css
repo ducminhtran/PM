@@ -68,9 +68,12 @@
 .board__column-head { display: flex; align-items: center; justify-content: space-between; padding: var(--sp-2) var(--sp-2) var(--sp-3); }
 .board__column-title { font-size: var(--fs-small); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--c-text-secondary); }
 .board__column-count { font-size: 11px; color: var(--c-text-muted); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-full); padding: 0 7px; }
-.board__cards { display: flex; flex-direction: column; gap: var(--sp-2); min-height: 40px; }
+.board__cards { display: flex; flex-direction: column; gap: var(--sp-2); min-height: 60px; border-radius: var(--radius-sm); transition: background .12s, box-shadow .12s; }
+.board__cards--over { background: #E9F2FF; box-shadow: inset 0 0 0 2px var(--c-brand); }
 
-.task-card { position: relative; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-sm); box-shadow: var(--elev-raised); padding: var(--sp-3); padding-left: calc(var(--sp-3) + 3px); display: flex; flex-direction: column; gap: var(--sp-2); cursor: pointer; transition: border-color .12s, box-shadow .12s; }
+.task-card { position: relative; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-sm); box-shadow: var(--elev-raised); padding: var(--sp-3); padding-left: calc(var(--sp-3) + 3px); display: flex; flex-direction: column; gap: var(--sp-2); cursor: grab; transition: border-color .12s, box-shadow .12s, opacity .12s, transform .12s; }
+.task-card:active { cursor: grabbing; }
+.task-card--dragging { opacity: .5; transform: rotate(1.5deg); box-shadow: var(--elev-overlay); }
 .task-card:hover { border-color: var(--c-border-strong); box-shadow: var(--elev-overlay); }
 /* dải màu trái theo độ ưu tiên (gắn qua biến --prio-color) */
 .task-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: var(--radius-sm) 0 0 var(--radius-sm); background: var(--prio-color, var(--c-border-strong)); }
