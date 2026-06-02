@@ -43,6 +43,13 @@ export function createRoutes({ navigate, setTitle, setContext }) {
       }),
     },
     {
+      pattern: '/settings/categories',
+      handler: global('settings', async (ctx) => {
+        const { CategoryView } = await import('./features/settings/category.view.js');
+        return CategoryView(ctx);
+      }),
+    },
+    {
       pattern: '/projects/:id',
       handler: async (ctx) => {
         navigate(`/projects/${ctx.params.id}/dashboard`, { replace: true });
