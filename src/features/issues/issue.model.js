@@ -1,5 +1,5 @@
 /** issue.model.js — schema, factory, validation for Issues. */
-export const ISSUE_WRITABLE = [
+const ISSUE_WRITABLE = [
   'project_id', 'task_id', 'title', 'description', 'type',
   'status', 'priority', 'assignee_id', 'reporter_id',
 ];
