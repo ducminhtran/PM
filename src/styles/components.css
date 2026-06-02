@@ -33,9 +33,6 @@
 .badge[data-tone="green"]   { --badge-bg: var(--badge-green-bg);   --badge-fg: var(--badge-green-fg); }
 .badge[data-tone="red"]     { --badge-bg: var(--badge-red-bg);     --badge-fg: var(--badge-red-fg); }
 .badge[data-tone="purple"]  { --badge-bg: var(--badge-purple-bg);  --badge-fg: var(--badge-purple-fg); }
-/* legacy fallback (badge cũ dùng --badge-color) */
-.badge--subtle { background: color-mix(in srgb, var(--badge-color) 14%, transparent); color: var(--badge-color); }
-.badge--solid { background: var(--badge-color); color: #fff; }
 
 /* ---- Priority (icon + chữ màu, không nền) ---- */
 .priority { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-small); font-weight: 600; color: var(--prio-fg, var(--c-text-secondary)); }
@@ -81,7 +78,6 @@
 .task-card--done { opacity: .85; }
 .task-card__title { font-weight: 400; font-size: var(--fs-body); line-height: 1.45; }
 .task-card__meta { display: flex; align-items: center; gap: var(--sp-2); }
-.task-card__progress { flex: 1; }
 .task-card__footer { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
 .task-card__key { font-family: var(--font-mono); font-size: 11px; color: var(--c-text-muted); }
 .task-card__status { font-size: var(--fs-small); border: 1px solid var(--c-border); border-radius: var(--radius-sm); padding: 2px 4px; background: var(--c-surface); cursor: pointer; }
