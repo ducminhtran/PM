@@ -1,17 +1,22 @@
 /**
- * TaskForm — controlled create/edit form for a task. Resolves project + member
- * options from the global appStore. Emits a form payload via onSubmit.
+ * TaskForm — form tạo/sửa task. Đổ option project/assignee/status/priority từ
+ * appStore (status & priority lấy từ DANH MỤC động). Phát payload qua onSubmit.
  */
+import { appStore } from '../../../app.store.js';
 import { el } from '../../../shared/utils/dom.js';
 import { emptyTask } from '../task.model.js';
-import { TASK_STATUS, PRIORITY } from '../../../core/config.js';
-import { appStore } from '../../../app.store.js';
 
 export function TaskForm({ initial, onSubmit, onCancel } = {}) {
   const data = { ...emptyTask(initial?.project_id ?? null), ...initial };
-  const { projects, members } = appStore.getState();
-  const fields = {};
+  const { projects, members, taskStatuses, priorities } = appStore.getState();
 
+  // mặc định: nếu chưa có status_id/priority_id thì chọn theo code 'todo'/'medium'
+  const defStatus = taskStatuses.find((s) => s.code === 'todo') ?? taskStatuses[0];
+  const defPrio = priorities.find((p) => p.code === 'medium') ?? priorities[0];
+  const curStatusId = data.status_id ?? defStatus?.id ?? '';
+  const curPrioId = data.priority_id ?? defPrio?.id ?? '';
+
+  const fields = {};
   function field(name, label, input, { required } = {}) {
     const errorEl = el('span.field__error');
     fields[name] = { errorEl };
@@ -27,15 +32,16 @@ export function TaskForm({ initial, onSubmit, onCancel } = {}) {
     el('option', { value: '', text: 'Select project', selected: !data.project_id }),
     ...projects.map((p) => el('option', { value: p.id, text: `${p.key} · ${p.name}`, selected: p.id === data.project_id })),
   ]);
-  const statusSelect = el('select.input', {}, Object.entries(TASK_STATUS).map(([v, c]) =>
-    el('option', { value: v, text: c.label, selected: v === data.status })));
-  const prioSelect = el('select.input', {}, Object.entries(PRIORITY).map(([v, c]) =>
-    el('option', { value: v, text: c.label, selected: v === data.priority })));
+  const statusSelect = el('select.input', {}, taskStatuses.map((s) =>
+    el('option', { value: s.id, text: s.label, selected: s.id === curStatusId })));
+  const prioSelect = el('select.input', {}, priorities.map((p) =>
+    el('option', { value: p.id, text: p.label, selected: p.id === curPrioId })));
   const assigneeSelect = el('select.input', {}, [
     el('option', { value: '', text: 'Unassigned', selected: !data.assignee_id }),
     ...members.map((m) => el('option', { value: m.id, text: m.full_name, selected: m.id === data.assignee_id })),
   ]);
   const progressInput = el('input.input', { type: 'number', min: '0', max: '100', value: String(data.progress ?? 0) });
+  const startInput = el('input.input', { type: 'date', value: data.start_date ?? '' });
   const dueInput = el('input.input', { type: 'date', value: data.due_date ?? '' });
 
   const submitBtn = el('button.btn.btn--primary', { type: 'submit' }, [initial?.id ? 'Save changes' : 'Create task']);
@@ -49,10 +55,11 @@ export function TaskForm({ initial, onSubmit, onCancel } = {}) {
           title: titleInput.value,
           description: descInput.value,
           project_id: projectSelect.value || null,
-          status: statusSelect.value,
-          priority: prioSelect.value,
+          status_id: statusSelect.value || null,
+          priority_id: prioSelect.value || null,
           assignee_id: assigneeSelect.value || null,
           progress: Number(progressInput.value) || 0,
+          start_date: startInput.value || null,
           due_date: dueInput.value || null,
         }, { setErrors });
       },
@@ -65,13 +72,14 @@ export function TaskForm({ initial, onSubmit, onCancel } = {}) {
       field('assignee_id', 'Assignee', assigneeSelect),
     ]),
     el('div.form-grid', {}, [
-      field('status', 'Status', statusSelect),
-      field('priority', 'Priority', prioSelect),
+      field('status_id', 'Status', statusSelect),
+      field('priority_id', 'Priority', prioSelect),
     ]),
     el('div.form-grid', {}, [
-      field('progress', 'Progress (%)', progressInput),
+      field('start_date', 'Start date', startInput),
       field('due_date', 'Due date', dueInput),
     ]),
+    field('progress', 'Progress (%)', progressInput),
     el('div.form-actions', {}, [
       onCancel && el('button.btn.btn--secondary', { type: 'button', on: { click: onCancel } }, ['Cancel']),
       submitBtn,
