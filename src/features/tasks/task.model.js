@@ -1,5 +1,5 @@
 /** task.model.js — schema, factory, validation for Tasks. */
-export const TASK_WRITABLE = [
+const TASK_WRITABLE = [
   'project_id', 'title', 'description', 'status', 'priority',
   'assignee_id', 'reporter_id', 'parent_task_id', 'progress',
   'estimate_hours', 'due_date', 'position',
