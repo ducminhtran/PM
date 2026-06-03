@@ -224,3 +224,21 @@
 .row-actions { display: inline-flex; gap: 2px; justify-content: flex-end; opacity: 0; transition: opacity .12s; }
 .table__row:hover .row-actions { opacity: 1; }
 .row-actions .icon-btn { width: 26px; height: 26px; }
+
+/* ---- Gantt ---- */
+.gantt { border: 1px solid var(--c-border); border-radius: var(--radius-md); overflow: auto; background: var(--c-surface); }
+.gantt__head { display: flex; border-bottom: 1px solid var(--c-border); position: sticky; top: 0; background: var(--c-surface); z-index: 2; }
+.gantt__head-spacer { width: 220px; flex-shrink: 0; padding: var(--sp-2) var(--sp-3); font-weight: 600; font-size: var(--fs-small); color: var(--c-text-secondary); border-right: 1px solid var(--c-border); position: sticky; left: 0; background: var(--c-surface); z-index: 1; }
+.gantt__head-days { display: flex; flex-shrink: 0; }
+.gantt__day { flex-shrink: 0; border-right: 1px solid var(--c-border); height: 34px; position: relative; }
+.gantt__day--weekend { background: var(--c-bg); }
+.gantt__day-label { position: absolute; left: 3px; top: 8px; font-size: 10px; color: var(--c-text-muted); white-space: nowrap; }
+.gantt__body { display: flex; flex-direction: column; }
+.gantt__row { display: flex; align-items: center; border-bottom: 1px solid var(--c-border); min-height: 40px; }
+.gantt__row:last-child { border-bottom: 0; }
+.gantt__row-name { width: 220px; flex-shrink: 0; padding: var(--sp-2) var(--sp-3); font-size: var(--fs-body); display: flex; align-items: center; gap: var(--sp-2); border-right: 1px solid var(--c-border); position: sticky; left: 0; background: var(--c-surface); z-index: 1; overflow: hidden; }
+.gantt__row-key { font-size: 10px; color: var(--c-text-muted); flex-shrink: 0; }
+.gantt__row-track { position: relative; height: 40px; flex-shrink: 0; }
+.gantt__bar { position: absolute; top: 8px; height: 24px; background: color-mix(in srgb, var(--bar-color) 22%, transparent); border: 1px solid var(--bar-color); border-radius: var(--radius-sm); display: flex; align-items: center; overflow: hidden; cursor: default; }
+.gantt__bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: color-mix(in srgb, var(--bar-color) 38%, transparent); }
+.gantt__bar-label { position: relative; padding: 0 var(--sp-2); font-size: 11px; white-space: nowrap; color: var(--c-text-primary); z-index: 1; }
