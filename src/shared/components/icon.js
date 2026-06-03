@@ -55,6 +55,8 @@ const PATHS = {
   'layout-kanban': '<path d="M4 4m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v11a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M14 4m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/>',
   'calendar': '<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1v4"/>',
   'chart-bar': '<path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/>',
+  'chevron-left': '<path d="M15 6l-6 6l6 6"/>',
+  'chevron-right': '<path d="M9 6l6 6l-6 6"/>',
 };
 
 const FALLBACK = PATHS.circle;
