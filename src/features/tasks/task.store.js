@@ -40,9 +40,15 @@ async function updateStatus(id, statusId) {
   }
 }
 
+async function update(id, form) {
+  const updated = await taskService.update(id, form);
+  store.setState((s) => ({ items: s.items.map((t) => (t.id === id ? updated : t)) }));
+  return updated;
+}
+
 async function remove(id) {
   await taskService.remove(id);
   store.setState((s) => ({ items: s.items.filter((t) => t.id !== id) }));
 }
 
-export const taskStore = { ...store, load, create, updateStatus, remove };
+export const taskStore = { ...store, load, create, update, updateStatus, remove };

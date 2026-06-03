@@ -10,6 +10,7 @@ import { Avatar } from '../../shared/components/avatar.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
 import { emptyState } from '../../shared/components/empty-state.js';
 import { Modal } from '../../shared/components/modal.js';
+import { confirmDialog } from '../../shared/components/confirm.js';
 import { toast } from '../../shared/components/toast.js';
 import { formatDate } from '../../shared/utils/format.js';
 import { appStore } from '../../app.store.js';
@@ -48,6 +49,13 @@ export function BacklogView({ outlet, setTitle, projectId }) {
           return el('span.cell-user', {}, [Avatar({ name: m?.full_name ?? 'Unassigned', url: m?.avatar_url, size: 24 }), el('span', { text: m?.full_name ?? 'Unassigned' })]);
         } },
         { key: 'due_date', header: 'Due', width: '120px', render: (t) => formatDate(t.due_date) },
+        { key: '_actions', header: '', width: '80px', align: 'right', render: (t) =>
+          el('div.row-actions', {}, [
+            el('button.icon-btn', { type: 'button', title: 'Edit',
+              on: { click: (e) => { e.stopPropagation(); openEdit(t); } } }, [Icon('check', { size: 15 })]),
+            el('button.icon-btn.icon-btn--danger', { type: 'button', title: 'Delete',
+              on: { click: (e) => { e.stopPropagation(); askDelete(t); } } }, [Icon('x', { size: 15 })]),
+          ]) },
       ],
       rows,
     });
@@ -66,6 +74,32 @@ export function BacklogView({ outlet, setTitle, projectId }) {
     });
     const modal = Modal({ title: 'New task', content: form.node });
     modal.open();
+  }
+
+  function openEdit(task) {
+    const form = TaskForm({
+      initial: task,
+      onCancel: () => modal.close(),
+      onSubmit: async (payload, { setErrors }) => {
+        form.setSubmitting(true);
+        try { await taskStore.update(task.id, payload); toast('Task updated', 'success'); modal.close(); }
+        catch (err) { if (err.code === 'VALIDATION') setErrors(err.cause); else toast(err.message, 'error'); }
+        finally { form.setSubmitting(false); }
+      },
+    });
+    const modal = Modal({ title: 'Edit task', content: form.node });
+    modal.open();
+  }
+
+  function askDelete(task) {
+    confirmDialog({
+      title: 'Delete task',
+      message: `Xóa task "${task.title}"?`,
+      onConfirm: async () => {
+        try { await taskStore.remove(task.id); toast('Task deleted', 'success'); }
+        catch (err) { toast(err.message, 'error'); }
+      },
+    });
   }
 
   const unsubscribe = taskStore.subscribe((state) => {
