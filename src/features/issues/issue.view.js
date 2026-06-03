@@ -10,6 +10,7 @@ import { Avatar } from '../../shared/components/avatar.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
 import { emptyState } from '../../shared/components/empty-state.js';
 import { Modal } from '../../shared/components/modal.js';
+import { confirmDialog } from '../../shared/components/confirm.js';
 import { toast } from '../../shared/components/toast.js';
 import { appStore } from '../../app.store.js';
 import { issueStore } from './issue.store.js';
@@ -61,6 +62,13 @@ export function IssuesView({ outlet, setTitle, projectId }) {
           const m = r.member(i.assignee_id);
           return el('span.cell-user', {}, [Avatar({ name: m?.full_name ?? 'Unassigned', url: m?.avatar_url, size: 24 }), el('span', { text: m?.full_name ?? 'Unassigned' })]);
         } },
+        { key: '_actions', header: '', width: '80px', align: 'right', render: (i) =>
+          el('div.row-actions', {}, [
+            el('button.icon-btn', { type: 'button', title: 'Edit',
+              on: { click: (e) => { e.stopPropagation(); openEdit(i); } } }, [Icon('check', { size: 15 })]),
+            el('button.icon-btn.icon-btn--danger', { type: 'button', title: 'Delete',
+              on: { click: (e) => { e.stopPropagation(); askDelete(i); } } }, [Icon('x', { size: 15 })]),
+          ]) },
       ],
       rows,
     });
@@ -83,6 +91,32 @@ export function IssuesView({ outlet, setTitle, projectId }) {
     });
     const modal = Modal({ title: 'Report issue', content: form.node });
     modal.open();
+  }
+
+  function openEdit(issue) {
+    const form = IssueForm({
+      initial: issue,
+      onCancel: () => modal.close(),
+      onSubmit: async (payload, { setErrors }) => {
+        form.setSubmitting(true);
+        try { await issueStore.update(issue.id, payload); toast('Issue updated', 'success'); modal.close(); }
+        catch (err) { if (err.code === 'VALIDATION') setErrors(err.cause); else toast(err.message, 'error'); }
+        finally { form.setSubmitting(false); }
+      },
+    });
+    const modal = Modal({ title: 'Edit issue', content: form.node });
+    modal.open();
+  }
+
+  function askDelete(issue) {
+    confirmDialog({
+      title: 'Delete issue',
+      message: `Xóa issue "${issue.title}"?`,
+      onConfirm: async () => {
+        try { await issueStore.remove(issue.id); toast('Issue deleted', 'success'); }
+        catch (err) { toast(err.message, 'error'); }
+      },
+    });
   }
 
   const unsubscribe = issueStore.subscribe((state) => {

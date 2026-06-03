@@ -30,4 +30,9 @@ async function remove(id) {
   await issueService.remove(id);
   store.setState((s) => ({ items: s.items.filter((i) => i.id !== id) }));
 }
-export const issueStore = { ...store, load, create, updateStatus, remove };
+async function update(id, form) {
+  const updated = await issueService.update(id, form);
+  store.setState((s) => ({ items: s.items.map((i) => (i.id === id ? updated : i)) }));
+  return updated;
+}
+export const issueStore = { ...store, load, create, update, updateStatus, remove };
