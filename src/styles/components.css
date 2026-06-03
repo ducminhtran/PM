@@ -219,3 +219,8 @@
 .icon-picker__item { display: grid; place-items: center; height: 34px; border: 1px solid transparent; background: transparent; border-radius: var(--radius-sm); cursor: pointer; color: var(--c-text-secondary); }
 .icon-picker__item:hover { background: var(--c-bg); color: var(--c-text-primary); }
 .icon-picker__item--active { background: #E9F2FF; color: var(--c-brand); border-color: var(--c-brand); }
+
+/* ---- Row actions (sửa/xóa trong bảng) ---- */
+.row-actions { display: inline-flex; gap: 2px; justify-content: flex-end; opacity: 0; transition: opacity .12s; }
+.table__row:hover .row-actions { opacity: 1; }
+.row-actions .icon-btn { width: 26px; height: 26px; }
