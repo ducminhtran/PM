@@ -242,3 +242,22 @@
 .gantt__bar { position: absolute; top: 8px; height: 24px; background: color-mix(in srgb, var(--bar-color) 22%, transparent); border: 1px solid var(--bar-color); border-radius: var(--radius-sm); display: flex; align-items: center; overflow: hidden; cursor: default; }
 .gantt__bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: color-mix(in srgb, var(--bar-color) 38%, transparent); }
 .gantt__bar-label { position: relative; padding: 0 var(--sp-2); font-size: 11px; white-space: nowrap; color: var(--c-text-primary); z-index: 1; }
+
+/* ---- Calendar ---- */
+.cal__nav { display: flex; align-items: center; gap: var(--sp-2); }
+.cal__title { font-weight: 600; font-size: var(--fs-body); min-width: 120px; text-align: center; }
+.cal { border: 1px solid var(--c-border); border-radius: var(--radius-md); overflow: hidden; background: var(--c-surface); }
+.cal__weekdays { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid var(--c-border); background: var(--c-bg); }
+.cal__weekday { padding: var(--sp-2); text-align: center; font-size: 11px; font-weight: 600; color: var(--c-text-secondary); }
+.cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal__cell { min-height: 96px; border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border); padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+.cal__cell:nth-child(7n) { border-right: 0; }
+.cal__cell--pad { background: var(--c-bg); }
+.cal__cell--today { background: #E9F2FF; }
+.cal__cell--today .cal__date { background: var(--c-brand); color: #fff; border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; }
+.cal__date { font-size: 12px; color: var(--c-text-secondary); font-weight: 600; }
+.cal__events { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.cal__event { display: flex; align-items: center; gap: 4px; padding: 2px 5px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--ev-color) 16%, transparent); border-left: 2px solid var(--ev-color); font-size: 11px; overflow: hidden; }
+.cal__event-key { font-family: var(--font-mono); font-size: 9px; color: var(--c-text-muted); flex-shrink: 0; }
+.cal__event-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal__more { font-size: 10px; color: var(--c-text-muted); padding-left: 5px; }
