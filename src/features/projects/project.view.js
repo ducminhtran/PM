@@ -16,6 +16,7 @@ import { Avatar } from '../../shared/components/avatar.js';
 import { AsyncSection } from '../../shared/components/async-section.js';
 import { emptyState } from '../../shared/components/empty-state.js';
 import { Modal } from '../../shared/components/modal.js';
+import { confirmDialog } from '../../shared/components/confirm.js';
 import { toast } from '../../shared/components/toast.js';
 import { formatDate } from '../../shared/utils/format.js';
 import { PROJECT_STATUS } from '../../core/config.js';
@@ -74,6 +75,13 @@ export function ProjectsView({ outlet, navigate, setTitle }) {
           },
         },
         { key: 'end_date', header: 'Due', width: '120px', render: (p) => formatDate(p.end_date) },
+        { key: '_actions', header: '', width: '80px', align: 'right', render: (p) =>
+          el('div.row-actions', {}, [
+            el('button.icon-btn', { type: 'button', title: 'Edit',
+              on: { click: (e) => { e.stopPropagation(); openEdit(p); } } }, [Icon('check', { size: 15 })]),
+            el('button.icon-btn.icon-btn--danger', { type: 'button', title: 'Delete',
+              on: { click: (e) => { e.stopPropagation(); askDelete(p); } } }, [Icon('x', { size: 15 })]),
+          ]) },
       ],
       rows,
       onRowClick: (p) => navigate(`/projects/${p.id}`),
@@ -99,6 +107,39 @@ export function ProjectsView({ outlet, navigate, setTitle }) {
     });
     const modal = Modal({ title: 'New project', content: form.node });
     modal.open();
+  }
+
+  function openEdit(project) {
+    const form = ProjectForm({
+      initial: project,
+      onCancel: () => modal.close(),
+      onSubmit: async (payload, { setErrors }) => {
+        form.setSubmitting(true);
+        try {
+          await projectStore.update(project.id, payload);
+          toast('Project updated', 'success');
+          modal.close();
+        } catch (err) {
+          if (err.code === 'VALIDATION') setErrors(err.cause);
+          else toast(err.message, 'error');
+        } finally {
+          form.setSubmitting(false);
+        }
+      },
+    });
+    const modal = Modal({ title: 'Edit project', content: form.node });
+    modal.open();
+  }
+
+  function askDelete(project) {
+    confirmDialog({
+      title: 'Delete project',
+      message: `Xóa "${project.name}"? Toàn bộ task và issue thuộc project này cũng sẽ bị xóa.`,
+      onConfirm: async () => {
+        try { await projectStore.remove(project.id); toast('Project deleted', 'success'); }
+        catch (err) { toast(err.message, 'error'); }
+      },
+    });
   }
 
   // ---- reactive wiring ----
