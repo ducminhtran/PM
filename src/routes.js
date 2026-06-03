@@ -50,6 +50,13 @@ export function createRoutes({ navigate, setTitle, setContext }) {
       }),
     },
     {
+      pattern: '/gantt',
+      handler: global('gantt', async (ctx) => {
+        const { GanttView } = await import('./features/timeline/gantt.view.js');
+        return GanttView({ ...ctx, projectId: null });
+      }),
+    },
+    {
       pattern: '/projects/:id',
       handler: async (ctx) => {
         navigate(`/projects/${ctx.params.id}/dashboard`, { replace: true });
@@ -81,6 +88,13 @@ export function createRoutes({ navigate, setTitle, setContext }) {
       handler: inProject('issues', async (ctx) => {
         const { IssuesView } = await import('./features/issues/issue.view.js');
         return IssuesView({ ...ctx, projectId: ctx.params.id });
+      }),
+    },
+    {
+      pattern: '/projects/:id/gantt',
+      handler: inProject('gantt', async (ctx) => {
+        const { GanttView } = await import('./features/timeline/gantt.view.js');
+        return GanttView({ ...ctx, projectId: ctx.params.id });
       }),
     },
   ];
