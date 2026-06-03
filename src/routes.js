@@ -57,6 +57,13 @@ export function createRoutes({ navigate, setTitle, setContext }) {
       }),
     },
     {
+      pattern: '/calendar',
+      handler: global('calendar', async (ctx) => {
+        const { CalendarView } = await import('./features/timeline/calendar.view.js');
+        return CalendarView({ ...ctx, projectId: null });
+      }),
+    },
+    {
       pattern: '/projects/:id',
       handler: async (ctx) => {
         navigate(`/projects/${ctx.params.id}/dashboard`, { replace: true });
@@ -95,6 +102,13 @@ export function createRoutes({ navigate, setTitle, setContext }) {
       handler: inProject('gantt', async (ctx) => {
         const { GanttView } = await import('./features/timeline/gantt.view.js');
         return GanttView({ ...ctx, projectId: ctx.params.id });
+      }),
+    },
+    {
+      pattern: '/projects/:id/calendar',
+      handler: inProject('calendar', async (ctx) => {
+        const { CalendarView } = await import('./features/timeline/calendar.view.js');
+        return CalendarView({ ...ctx, projectId: ctx.params.id });
       }),
     },
   ];
