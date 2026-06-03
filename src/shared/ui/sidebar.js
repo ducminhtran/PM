@@ -16,10 +16,12 @@ const PROJECT_NAV = [
   { section: 'board',     label: 'Board',     icon: 'layout-kanban' },
   { section: 'backlog',   label: 'Backlog',   icon: 'list' },
   { section: 'issues',    label: 'Issues',    icon: 'bug' },
+  { section: 'gantt',     label: 'Gantt',     icon: 'target' },
 ];
 
 const GLOBAL_NAV = [
   { section: 'projects',  label: 'Projects',  icon: 'folder', href: '/projects' },
+  { section: 'gantt',     label: 'Gantt',     icon: 'target', href: '/gantt' },
   { section: 'resources', label: 'Resources', icon: 'users',  href: '/resources' },
   { section: 'settings',  label: 'Categories', icon: 'check', href: '/settings/categories' },
 ];
