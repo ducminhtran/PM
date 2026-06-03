@@ -1,11 +1,9 @@
 /** issue.model.js — schema, factory, validation cho Issue. */
-import { appStore } from '../../app.store.js';
 
-// Gồm cả *_id (mới) và status/priority/type (enum cũ, giai đoạn chuyển tiếp).
+// Cột ghi được — chỉ còn FK danh mục (đã bỏ cột enum cũ ở migration 002).
 const ISSUE_WRITABLE = [
   'project_id', 'task_id', 'title', 'description',
-  'type', 'status', 'priority',          // enum cũ — ghi kèm để tương thích ngược
-  'status_id', 'priority_id', 'type_id', // FK danh mục mới
+  'status_id', 'priority_id', 'type_id',
   'assignee_id', 'reporter_id',
 ];
 
@@ -20,16 +18,6 @@ export function emptyIssue(projectId = null) {
 export function toPayload(form) {
   const p = {};
   for (const f of ISSUE_WRITABLE) { let v = form[f]; if (v === '') v = null; if (v !== undefined) p[f] = v; }
-
-  // Tương thích ngược: suy 'code' cho cột enum cũ từ *_id.
-  const r = appStore.getResolver();
-  if (form.status_id)   p.status   = r.issueStatus(form.status_id)?.code ?? p.status ?? 'open';
-  if (form.priority_id) p.priority = r.priority(form.priority_id)?.code ?? p.priority ?? 'medium';
-  if (form.type_id)     p.type     = r.issueType(form.type_id)?.code ?? p.type ?? 'bug';
-  if (p.status == null)   delete p.status;
-  if (p.priority == null) delete p.priority;
-  if (p.type == null)     delete p.type;
-
   return p;
 }
 

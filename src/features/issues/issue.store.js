@@ -19,13 +19,9 @@ async function create(form) {
 }
 async function updateStatus(id, statusId) {
   const prev = store.getState().items;
-  const { appStore } = await import('../../app.store.js');
-  const code = appStore.getResolver().issueStatus(statusId)?.code ?? null;
-  store.setState({ items: prev.map((i) => (i.id === id ? { ...i, status_id: statusId, status: code ?? i.status } : i)) });
+  store.setState({ items: prev.map((i) => (i.id === id ? { ...i, status_id: statusId } : i)) });
   try {
-    const patch = { status_id: statusId };
-    if (code) patch.status = code;
-    const updated = await issueService.patch(id, patch);
+    const updated = await issueService.patch(id, { status_id: statusId });
     store.setState((s) => ({ items: s.items.map((i) => (i.id === id ? updated : i)) }));
     return updated;
   } catch (e) { store.setState({ items: prev }); throw e; }
