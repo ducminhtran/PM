@@ -29,14 +29,9 @@ async function create(form) {
 async function updateStatus(id, statusId) {
   // optimistic update cho board mượt
   const prev = store.getState().items;
-  // suy code cũ từ status_id để ghi kèm cột enum cũ (giai đoạn chuyển tiếp)
-  const { appStore } = await import('../../app.store.js');
-  const code = appStore.getResolver().taskStatus(statusId)?.code ?? null;
-  store.setState({ items: prev.map((t) => (t.id === id ? { ...t, status_id: statusId, status: code ?? t.status } : t)) });
+  store.setState({ items: prev.map((t) => (t.id === id ? { ...t, status_id: statusId } : t)) });
   try {
-    const patch = { status_id: statusId };
-    if (code) patch.status = code;
-    const updated = await taskService.patch(id, patch);
+    const updated = await taskService.patch(id, { status_id: statusId });
     store.setState((s) => ({ items: s.items.map((t) => (t.id === id ? updated : t)) }));
     return updated;
   } catch (error) {

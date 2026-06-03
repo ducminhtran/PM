@@ -1,17 +1,14 @@
 /** task.model.js — schema, factory, validation cho Task. */
-import { appStore } from '../../app.store.js';
 
-// Cột ghi được. Gồm cả *_id (mới) và status/priority (cũ, giai đoạn chuyển tiếp).
+// Cột ghi được — chỉ còn FK danh mục (đã bỏ cột enum cũ ở migration 002).
 const TASK_WRITABLE = [
   'project_id', 'title', 'description',
-  'status', 'priority',            // cột enum cũ — ghi kèm để tương thích ngược
-  'status_id', 'priority_id',      // FK danh mục mới
+  'status_id', 'priority_id',
   'assignee_id', 'reporter_id', 'parent_task_id', 'progress',
   'estimate_hours', 'due_date', 'start_date', 'position',
 ];
 
 export function emptyTask(projectId = null) {
-  // mặc định trỏ tới danh mục theo code 'todo' / 'medium' (suy ra id lúc tạo form)
   return {
     project_id: projectId, title: '', description: '',
     status_id: null, priority_id: null,
@@ -28,15 +25,6 @@ export function toPayload(form) {
     if (v !== undefined) payload[f] = v;
   }
   if (payload.progress != null) payload.progress = Math.max(0, Math.min(100, Number(payload.progress)));
-
-  // Tương thích ngược: suy 'code' cho cột enum cũ từ *_id (dùng danh mục đang load).
-  const r = appStore.getResolver();
-  if (form.status_id) payload.status = r.taskStatus(form.status_id)?.code ?? payload.status ?? 'todo';
-  if (form.priority_id) payload.priority = r.priority(form.priority_id)?.code ?? payload.priority ?? 'medium';
-  // bỏ key cũ nếu vẫn null để khỏi ghi đè bằng null
-  if (payload.status == null) delete payload.status;
-  if (payload.priority == null) delete payload.priority;
-
   return payload;
 }
 
