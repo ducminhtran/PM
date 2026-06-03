@@ -8,7 +8,6 @@ import { Icon } from '../../shared/components/icon.js';
 import { Spinner } from '../../shared/components/spinner.js';
 import { Avatar } from '../../shared/components/avatar.js';
 import { relativeTime } from '../../shared/utils/format.js';
-import { TASK_STATUS } from '../../core/config.js';
 import { projectStore } from '../projects/project.store.js';
 import { taskStore } from '../tasks/task.store.js';
 import { issueStore } from '../issues/issue.store.js';
@@ -33,8 +32,11 @@ export function DashboardView({ outlet, setTitle, navigate }) {
     const members = appStore.getState().members;
     const r = appStore.getResolver();
 
-    const openTasks = tasks.filter((t) => t.status !== 'done').length;
-    const openIssues = issues.filter((i) => i.status !== 'closed' && i.status !== 'resolved').length;
+    const openTasks = tasks.filter((t) => r.taskStatus(t.status_id)?.code !== 'done').length;
+    const openIssues = issues.filter((i) => {
+      const code = r.issueStatus(i.status_id)?.code;
+      return code !== 'closed' && code !== 'resolved';
+    }).length;
 
     // ---- Stat cards (icon màu + số) ----
     const stat = (label, value, icon, tone, href) =>
@@ -51,24 +53,20 @@ export function DashboardView({ outlet, setTitle, navigate }) {
       stat('Team members', members.length, 'users', 'green', '/resources'),
     ]);
 
-    // ---- Task status breakdown ----
-    const STATUS_BAR_COLOR = {
-      todo: 'var(--c-text-muted)', in_progress: 'var(--c-warning)',
-      in_review: 'var(--c-info)', done: 'var(--c-success)', blocked: 'var(--c-error)',
-    };
-    const order = ['todo', 'in_progress', 'in_review', 'done', 'blocked'];
-    const counts = order.map((s) => ({ s, n: tasks.filter((t) => t.status === s).length }));
+    // ---- Task status breakdown (theo DANH MỤC động) ----
+    const statuses = appStore.getState().taskStatuses; // sắp theo position
+    const counts = statuses.map((s) => ({ s, n: tasks.filter((t) => t.status_id === s.id).length }));
     const total = tasks.length || 1;
 
     const bar = el('div.breakdown__bar', {}, counts
       .filter((c) => c.n > 0)
-      .map((c) => el('span', { style: { width: `${(c.n / total) * 100}%`, background: STATUS_BAR_COLOR[c.s] } })));
+      .map((c) => el('span', { style: { width: `${(c.n / total) * 100}%`, background: c.s.color } })));
 
     const legend = el('div.breakdown__legend', {}, counts.map((c) =>
       el('div.breakdown__row', {}, [
         el('span.breakdown__label', {}, [
-          el('span.breakdown__dot', { style: { background: STATUS_BAR_COLOR[c.s] } }),
-          el('span', { text: TASK_STATUS[c.s].label }),
+          el('span.breakdown__dot', { style: { background: c.s.color } }),
+          el('span', { text: c.s.label }),
         ]),
         el('span.breakdown__count', { text: String(c.n) }),
       ])));
