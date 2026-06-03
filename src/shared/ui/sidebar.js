@@ -17,11 +17,13 @@ const PROJECT_NAV = [
   { section: 'backlog',   label: 'Backlog',   icon: 'list' },
   { section: 'issues',    label: 'Issues',    icon: 'bug' },
   { section: 'gantt',     label: 'Gantt',     icon: 'target' },
+  { section: 'calendar',  label: 'Calendar',  icon: 'calendar' },
 ];
 
 const GLOBAL_NAV = [
   { section: 'projects',  label: 'Projects',  icon: 'folder', href: '/projects' },
   { section: 'gantt',     label: 'Gantt',     icon: 'target', href: '/gantt' },
+  { section: 'calendar',  label: 'Calendar',  icon: 'calendar', href: '/calendar' },
   { section: 'resources', label: 'Resources', icon: 'users',  href: '/resources' },
   { section: 'settings',  label: 'Categories', icon: 'check', href: '/settings/categories' },
 ];
